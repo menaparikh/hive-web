@@ -1,5 +1,3 @@
-"use client";
-
 import React from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,30 +17,24 @@ export default function Home() {
       id: '1',
       title: 'The Godfather',
       director: 'Francis Ford Coppola',
-      imageUrl: '/godfather.png',
+      imageUrl: '/api/placeholder/300/450',
       year: 1972
     },
     {
       id: '2',
       title: 'Pulp Fiction',
       director: 'Quentin Tarantino',
-      imageUrl: '/pulpfiction.png',
+      imageUrl: '/api/placeholder/300/450',
       year: 1994
     },
     {
       id: '3',
       title: 'The Dark Knight',
       director: 'Christopher Nolan',
-      imageUrl: '/thedarknight.png',
+      imageUrl: '/api/placeholder/300/450',
       year: 2008
     }
   ];
-
-  const handleMovieClick = (movieId: string) => {
-    console.log(`Movie clicked: ${movieId}`);
-    // In a real app, you would navigate to a movie details page
-    // Example: router.push(`/movies/${movieId}`);
-  };
 
   return (
     <main className="min-h-screen p-6 bg-gray-50">
@@ -52,22 +44,15 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {movies.map((movie) => (
             <Card key={movie.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <button 
-                onClick={() => handleMovieClick(movie.id)} 
-                className="relative h-64 w-full block focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={`View details for ${movie.title}`}
-              >
-                <div className="relative h-full w-full">
-                  <Image
-                    src={movie.imageUrl}
-                    alt={`${movie.title} poster`}
-                    fill
-                    className="object-cover"
-                    priority={movie.id === '1'}
-                  />
-                  <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
-                </div>
-              </button>
+              <div className="relative h-64 w-full">
+                <Image
+                  src={movie.imageUrl}
+                  alt={`${movie.title} poster`}
+                  fill
+                  className="object-cover"
+                  priority={movie.id === '1'}
+                />
+              </div>
               
               <CardContent className="p-4">
                 <h2 className="text-xl font-semibold mb-2">{movie.title}</h2>
