@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
 import Header from './components/header';
@@ -16,6 +16,12 @@ type Movie = {
 };
 
 export default function Home() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen); // reverse the boolean value -> if open, close. if closed, open.
+  };
+
   const movies: Movie[] = [
     {
       id: '1',
@@ -46,8 +52,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <Sidebar/>
-      <div className="ml-16">
+      <Sidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
+      <div className={`transition-all duration-300 ease-in-out ml-16`}>
         <Header/>
         {/* Main content */}
         <div className="p-6">
