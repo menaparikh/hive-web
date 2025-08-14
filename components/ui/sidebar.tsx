@@ -24,13 +24,13 @@ export function Sidebar() {
             )}
             
             <div className={`fixed left-0 top-0 h-full bg-gray-50 flex flex-col py-4 space-y-4 z-30 transition-all duration-300 ease-in-out ${
-                isExpanded ? 'w-64' : 'w-16'
+                isExpanded ? 'w-64' : 'w-20'
             }`}>
                 <div className="flex items-center px-4">
                     <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="w-12 h-12"
+                        className="w-12 h-12 rounded-2xl"
                         onClick={toggleSidebar}
                     >
                         <Menu className="h-5 w-5" />
@@ -47,7 +47,7 @@ export function Sidebar() {
                         <Button 
                             size="icon" 
                             className={`bg-pink-200 hover:bg-pink-300 text-black rounded-2xl transition-all duration-300 ${
-                                isExpanded ? 'w-full h-12 justify-start' : 'w-12 h-12'
+                                isExpanded ? 'w-full h-12 justify-start px-4' : 'w-12 h-12'
                             }`}
                         >
                             <Plus className="h-5 w-5" />
@@ -60,7 +60,7 @@ export function Sidebar() {
                             variant="ghost" 
                             size="icon" 
                             className={`hover:bg-gray-200 text-black rounded-2xl transition-all duration-300 ${
-                                isExpanded ? 'w-full h-12 justify-start' : 'w-12 h-12'
+                                isExpanded ? 'w-full h-12 justify-start px-4' : 'w-12 h-12'
                             }`}
                         >
                             <Home className="h-5 w-5" />
@@ -72,8 +72,8 @@ export function Sidebar() {
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            className={`hover:bg-gray-200 rounded-full transition-all duration-300 ${
-                                isExpanded ? 'w-full h-12 justify-start' : 'w-12 h-12'
+                            className={`hover:bg-gray-200 text-black rounded-2xl transition-all duration-300 ${
+                                isExpanded ? 'w-full h-12 justify-start px-4' : 'w-12 h-12'
                             }`}
                         >
                             <Search className="h-5 w-5" />
@@ -85,11 +85,11 @@ export function Sidebar() {
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            className={`hover:bg-gray-200 transition-all duration-300 ${
-                                isExpanded ? 'w-full h-12 justify-start' : 'w-12 h-12'
+                            className={`hover:bg-gray-200 text-black rounded-2xl transition-all duration-300 ${
+                                isExpanded ? 'w-full h-12 justify-start px-4' : 'w-12 h-12'
                             }`}
                         >
-                            <List className="h-4 w-4" />
+                            <List className="h-5 w-5" />
                             {isExpanded && <span className="ml-3">Lists</span>}
                         </Button>
                     </Link>
@@ -98,19 +98,17 @@ export function Sidebar() {
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            className={`hover:bg-gray-200 rounded-full transition-all duration-300 ${
-                                isExpanded ? 'w-full h-12 justify-start' : 'w-12 h-12'
+                            className={`hover:bg-gray-200 text-black rounded-2xl transition-all duration-300 ${
+                                isExpanded ? 'w-full h-12 justify-start px-4' : 'w-12 h-12'
                             }`}
                         >
-                            <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center">
-                                <Image 
-                                    src="/sidebar-profile.png" 
-                                    alt="Profile Picture" 
-                                    width={24} 
-                                    height={24}
-                                    className="object-cover"
-                                />
-                            </div>
+                            <Image 
+                                src="/actualmena.png" 
+                                alt="Profile Picture" 
+                                width={20} 
+                                height={20}
+                                className="object-cover rounded-full"
+                            />
                             {isExpanded && <span className="ml-3">Profile</span>}
                         </Button>
                     </Link>
