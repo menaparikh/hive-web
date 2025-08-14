@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
 import { Search as SearchIcon, Filter, Check, Bookmark, Send, Heart } from "lucide-react";
@@ -324,8 +325,8 @@ export default function Search() {
                     <Send className="w-5 h-5 text-gray-400 hover:text-blue-500 transition-colors duration-200" />
                   </button>
                   
-                  <button 
-                    onClick={() => handleResultClick(result.id)} 
+                  <Link 
+                    href={`/lists/${result.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${result.title}`}
@@ -340,7 +341,7 @@ export default function Search() {
                       />
                       <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
                     </div>
-                  </button>
+                  </Link>
                   
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold text-gray-900 mb-1">{result.title}</h2>

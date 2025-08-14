@@ -30,7 +30,7 @@ export default function Profile_page() {
     bio: 'hello mena',
     avatar: '/actualmena.png',
     posts: 9,
-    followers: 1800,
+    followers: 15000000,
     following: 892,
     isVerified: true,
     isFollowing: false
@@ -195,8 +195,14 @@ export default function Profile_page() {
   };
 
   const formatNumber = (num: number) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    if (num >= 1000000) {
+      const millions = num / 1000000;
+      return millions % 1 === 0 ? Math.floor(millions) + 'M' : millions.toFixed(1) + 'M';
+    }
+    if (num >= 1000) {
+      const thousands = num / 1000;
+      return thousands % 1 === 0 ? Math.floor(thousands) + 'K' : thousands.toFixed(1) + 'K';
+    }
     return num.toString();
   };
 
@@ -354,8 +360,8 @@ export default function Profile_page() {
                     <Send className="w-5 h-5 text-gray-400 hover:text-blue-500 transition-colors duration-200" />
                   </button>
                   
-                  <button 
-                    onClick={() => console.log(`Clicked post: ${post.id}`)} 
+                  <Link 
+                    href={`/lists/${post.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${post.title}`}
@@ -370,7 +376,7 @@ export default function Profile_page() {
                       />
                       <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
                     </div>
-                  </button>
+                  </Link>
                   
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold text-gray-900 mb-1">{post.title}</h2>
@@ -434,8 +440,8 @@ export default function Profile_page() {
                     <Send className="w-5 h-5 text-gray-400 hover:text-blue-500 transition-colors duration-200" />
                   </button>
                   
-                  <button 
-                    onClick={() => console.log(`Clicked repost: ${post.id}`)} 
+                  <Link 
+                    href={`/lists/${post.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${post.title}`}
@@ -450,7 +456,7 @@ export default function Profile_page() {
                       />
                       <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
                     </div>
-                  </button>
+                  </Link>
                   
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold text-gray-900 mb-1">{post.title}</h2>
@@ -535,8 +541,8 @@ export default function Profile_page() {
                     <Send className="w-5 h-5 text-gray-400 hover:text-blue-500 transition-colors duration-200" />
                   </button>
                   
-                  <button 
-                    onClick={() => console.log(`Clicked saved post: ${post.id}`)} 
+                  <Link 
+                    href={`/lists/${post.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${post.title}`}
@@ -551,7 +557,7 @@ export default function Profile_page() {
                       />
                       <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
                     </div>
-                  </button>
+                  </Link>
                   
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold text-gray-900 mb-1">{post.title}</h2>
@@ -609,8 +615,8 @@ export default function Profile_page() {
                     <Send className="w-5 h-5 text-gray-400 hover:text-blue-500 transition-colors duration-200" />
                   </button>
                   
-                  <button 
-                    onClick={() => console.log(`Clicked saved collection: ${post.id}`)} 
+                  <Link 
+                    href={`/lists/${post.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${post.title}`}
@@ -625,7 +631,7 @@ export default function Profile_page() {
                       />
                       <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
                     </div>
-                  </button>
+                  </Link>
                   
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold text-gray-900 mb-1">{post.title}</h2>
@@ -679,8 +685,8 @@ export default function Profile_page() {
                         <Send className="w-5 h-5 text-gray-400 hover:text-blue-500 transition-colors duration-200" />
                       </button>
                       
-                      <button 
-                        onClick={() => console.log(`Clicked liked post: ${post.id}`)} 
+                      <Link 
+                        href={`/lists/${post.id}`}
                         className="relative h-44 w-full block focus:outline-none focus:ring-2"
                         style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                         aria-label={`View details for ${post.title}`}
@@ -695,7 +701,7 @@ export default function Profile_page() {
                           />
                           <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
                         </div>
-                      </button>
+                      </Link>
                       
                       <CardContent className="p-4">
                         <h2 className="text-lg font-semibold text-gray-900 mb-1">{post.title}</h2>
