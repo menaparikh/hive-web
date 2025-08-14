@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Home, Menu, Search, Plus, List } from "lucide-react"
+import { Home, Menu, Search, Plus, MessageCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -89,8 +89,8 @@ export function Sidebar() {
                                 isExpanded ? 'w-full h-12 justify-start px-4' : 'w-12 h-12'
                             }`}
                         >
-                            <List className="h-5 w-5" />
-                            {isExpanded && <span className="ml-3">Lists</span>}
+                            <MessageCircle className="h-5 w-5" />
+                            {isExpanded && <span className="ml-3">Messages</span>}
                         </Button>
                     </Link>
                     

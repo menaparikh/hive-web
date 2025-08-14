@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
 import Header from './components/header';
 import { Sidebar } from '@/components/ui/sidebar';
+import { Bookmark } from 'lucide-react';
 
 type List = {
   id: string;
@@ -15,6 +16,19 @@ type List = {
 };
 
 export default function Home() {
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+  const toggleFavorite = (listId: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(listId)) {
+        newFavorites.delete(listId);
+      } else {
+        newFavorites.add(listId);
+      }
+      return newFavorites;
+    });
+  };
 
   const lists: List[] = [
     {
@@ -354,7 +368,25 @@ export default function Home() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {lists.map((list) => (
-                <Card key={list.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] rounded-lg border border-gray-100" style={{ backgroundColor: '#FFFCF9' }}>
+                <Card key={list.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] rounded-lg border border-gray-100 relative" style={{ backgroundColor: '#FFFCF9' }}>
+                  {/* Favorite Bookmark */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(list.id);
+                    }}
+                    className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-sm"
+                    aria-label={favorites.has(list.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <Bookmark 
+                      className={`w-5 h-5 transition-all duration-200 ${
+                        favorites.has(list.id) 
+                          ? 'fill-yellow-400 text-yellow-400' 
+                          : 'text-gray-400 hover:text-yellow-400'
+                      }`}
+                    />
+                  </button>
+                  
                   <button 
                     onClick={() => handleListClick(list.id)} 
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
