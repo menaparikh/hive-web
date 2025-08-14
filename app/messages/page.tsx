@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { MessageCircle, Search, MoreVertical, Check, CheckCheck, Send, Paperclip, Smile, ArrowLeft } from "lucide-react";
+import { MessageCircle, Search, MoreVertical, Check, CheckCheck, Send, Paperclip, Smile, ArrowLeft, Plus, X } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -35,6 +35,7 @@ export default function Messages() {
   const [showMenu, setShowMenu] = useState(false);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
+  const [showStoryNotification, setShowStoryNotification] = useState(false);
 
   const messages: Message[] = [
     {
@@ -190,6 +191,14 @@ export default function Messages() {
         timestamp: '15m ago',
         isRead: true,
         avatar: '/violet.png'
+      },
+      {
+        id: '2',
+        sender: 'violet.noir',
+        content: 'story-mention',
+        timestamp: '2m ago',
+        isRead: false,
+        avatar: '/violet.png'
       }
     ],
     '3': [
@@ -317,15 +326,84 @@ export default function Messages() {
                         />
                       </div>
                     )}
-                    <div
-                      className={`px-4 py-2 rounded-2xl ${
-                        message.sender === 'me'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-900'
-                      }`}
-                    >
-                      <p className="text-sm">{message.content}</p>
-                    </div>
+                    
+                    {message.content === 'story-mention' ? (
+                      <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm max-w-xs">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <span className="text-xs text-gray-600">Mentioned you in their story</span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 mb-3">
+                          <div className="relative">
+                            <div className="w-8 h-8 rounded-full overflow-hidden border-2" style={{ borderColor: 'transparent', background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                              <div className="w-full h-full rounded-full p-0.5 bg-white">
+                                <Image
+                                  src="/violet.png"
+                                  alt="violet.noir"
+                                  width={32}
+                                  height={32}
+                                  className="w-full h-full rounded-full object-cover"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-1">
+                              <span className="font-medium text-gray-900 text-sm">violet.noir</span>
+                              <span className="text-gray-500 text-xs">•</span>
+                              <span className="text-gray-500 text-xs">now</span>
+                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <button className="w-full px-3 py-2 bg-blue-500 text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition-colors">
+                          Add This to your Story
+                        </button>
+                        
+                        {/* Story Preview */}
+                        <div className="mt-2 relative">
+                          <div className="w-full h-20 rounded-lg overflow-hidden relative">
+                            <Image
+                              src="/salad.png"
+                              alt="Story preview"
+                              fill
+                              className="object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                            <div className="absolute bottom-2 left-2 text-white">
+                              <p className="text-xs font-medium">These salad recipes are life-changing! 🥗</p>
+                              <p className="text-xs opacity-90">@menaparikh</p>
+                            </div>
+                          </div>
+                          
+                          {/* Profile Picture Connection */}
+                          <div className="absolute -bottom-1 -left-1">
+                            <div className="w-6 h-6 rounded-full overflow-hidden border border-white">
+                              <Image
+                                src="/actualmena.png"
+                                alt="Your profile"
+                                width={24}
+                                height={24}
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="absolute -top-4 left-2.5 w-0.5 h-4 bg-gray-300"></div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className={`px-4 py-2 rounded-2xl ${
+                          message.sender === 'me'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-gray-100 text-gray-900'
+                        }`}
+                      >
+                        <p className="text-sm">{message.content}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -434,6 +512,82 @@ export default function Messages() {
                 </div>
               )}
             </div>
+
+            {/* Story Notification */}
+            {showStoryNotification && (
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 p-4 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-gray-600">Mentioned you in their story</span>
+                  <button
+                    onClick={() => setShowStoryNotification(false)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2" style={{ borderColor: 'transparent', background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                      <div className="w-full h-full rounded-full p-0.5 bg-white">
+                        <Image
+                          src="/violet.png"
+                          alt="violet.noir"
+                          width={48}
+                          height={48}
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium text-gray-900">violet.noir</span>
+                      <span className="text-gray-500">•</span>
+                      <span className="text-gray-500 text-sm">now</span>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">Reposted your salad recipes list</p>
+                  </div>
+                  
+                  <button className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+                    Add This to your Story
+                  </button>
+                </div>
+                
+                {/* Story Preview */}
+                <div className="mt-3 relative">
+                  <div className="w-full h-32 rounded-lg overflow-hidden relative">
+                    <Image
+                      src="/salad.png"
+                      alt="Story preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                    <div className="absolute bottom-3 left-3 text-white">
+                      <p className="text-sm font-medium">These salad recipes are life-changing! 🥗</p>
+                      <p className="text-xs opacity-90">@menaparikh</p>
+                    </div>
+                  </div>
+                  
+                  {/* Profile Picture Connection */}
+                  <div className="absolute -bottom-2 -left-2">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
+                      <Image
+                        src="/actualmena.png"
+                        alt="Your profile"
+                        width={32}
+                        height={32}
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="absolute -top-6 left-3 w-0.5 h-6 bg-gray-300"></div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Messages Header */}
             <div className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 p-6 mb-6">

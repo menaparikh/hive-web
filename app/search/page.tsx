@@ -326,7 +326,7 @@ export default function Search() {
                   </button>
                   
                   <Link 
-                    href={`/lists/${result.id}`}
+                    href={`/messages/lists/${result.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${result.title}`}

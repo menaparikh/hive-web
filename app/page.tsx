@@ -6,7 +6,10 @@ import Link from 'next/link';
 import { Card, CardContent } from "@/components/ui/card";
 import Header from './components/header';
 import { Sidebar } from '@/components/ui/sidebar';
-import { Bookmark } from 'lucide-react';
+import { Bookmark, Plus } from 'lucide-react';
+import StoryViewer from './components/story-viewer';
+import StoryCreator from './components/story-creator';
+import Notification from './components/notification';
 
 type List = {
   id: string;
@@ -18,6 +21,38 @@ type List = {
 
 export default function Home() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [storyViewer, setStoryViewer] = useState<{
+    isOpen: boolean;
+    creatorUsername: string;
+    initialStoryIndex: number;
+  }>({
+    isOpen: false,
+    creatorUsername: '',
+    initialStoryIndex: 0
+  });
+
+  // List of all creators for story navigation
+  const allCreators = [
+    'menaparikh',
+    'lumen.ly',
+    'violet.noir',
+    'beneastman',
+    'lifeofmads',
+    'coraoconell',
+    'chilithedog',
+    'glow.with.indie',
+    'lilyjade',
+    'derekshone'
+  ];
+  const [storyCreator, setStoryCreator] = useState(false);
+  const [userStories, setUserStories] = useState<any[]>([]);
+  const [notification, setNotification] = useState<{
+    isOpen: boolean;
+    data: any;
+  }>({
+    isOpen: false,
+    data: null
+  });
 
   const toggleFavorite = (listId: string) => {
     setFavorites(prev => {
@@ -123,6 +158,62 @@ export default function Home() {
     console.log(`List clicked: ${listId}`);
   };
 
+  const openStory = (creatorUsername: string) => {
+    setStoryViewer({
+      isOpen: true,
+      creatorUsername,
+      initialStoryIndex: 0
+    });
+  };
+
+  const closeStory = () => {
+    console.log('closeStory function called');
+    setStoryViewer({
+      isOpen: false,
+      creatorUsername: '',
+      initialStoryIndex: 0
+    });
+  };
+
+  const handleSaveStory = (story: any) => {
+    setUserStories(prev => [story, ...prev]);
+  };
+
+  const showNotification = (type: 'repost' | 'like' | 'comment', username: string, avatar: string, storyId?: string) => {
+    const notificationData = {
+      id: Date.now().toString(),
+      type,
+      username,
+      avatar,
+      content: '',
+      timeAgo: 'Just now',
+      storyId
+    };
+    
+    setNotification({
+      isOpen: true,
+      data: notificationData
+    });
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, isOpen: false }));
+    }, 5000);
+  };
+
+  const handleViewStory = (storyId: string) => {
+    // Find the story and open it
+    const story = userStories.find(s => s.id === storyId);
+    if (story) {
+      setStoryViewer({
+        isOpen: true,
+        creatorUsername: 'menaparikh',
+        initialStoryIndex: 0
+      });
+    }
+    setNotification(prev => ({ ...prev, isOpen: false }));
+  };
+
   useEffect(() => {
     const scrollContainer = document.getElementById('creators-scroll');
     const leftArrow = document.getElementById('left-arrow');
@@ -222,116 +313,139 @@ export default function Home() {
                 </button>
                 
                 <div className="flex space-x-2 sm:space-x-3 md:space-x-4 overflow-hidden pb-2 flex-1 pl-0" id="creators-scroll">
-                  <button 
-                    onClick={() => console.log('Clicked: menaparikh')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
-                      <div className="w-full h-full rounded-full bg-white p-0.5">
-                        <img src="/actualmena.png" alt="menaparikh" className="w-full h-full rounded-full object-cover" />
+                  <div className="flex flex-col items-center space-y-1">
+                    <div className="relative">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                        <div className="w-full h-full rounded-full bg-white p-0.5">
+                          <img src="/actualmena.png" alt="menaparikh" className="w-full h-full rounded-full object-cover" />
+                        </div>
                       </div>
+                      
+                      {/* Create Story Plus Button */}
+                      <button
+                        onClick={() => setStoryCreator(true)}
+                        className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-110 border-2 border-white"
+                      >
+                        <Plus className="w-3 h-3 text-white" />
+                      </button>
                     </div>
-                    <span className="text-xs sm:text-sm text-black font-medium">menaparikh</span>
-                  </button>
-                  <button 
-                    onClick={() => console.log('Clicked: lumen.ly')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                    <span className="text-xs sm:text-sm text-black font-medium">Your story</span>
+                  </div>
+                  
+                  <div className="flex flex-col items-center space-y-1">
+                    <button 
+                      onClick={() => openStory('lumen.ly')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg transition-transform hover:scale-105" 
+                      style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}
+                    >
                       <div className="w-full h-full rounded-full bg-white p-0.5">
                         <img src="/lumen.png" alt="lumen.ly" className="w-full h-full rounded-full object-cover" />
                       </div>
-                    </div>
+                    </button>
                     <span className="text-xs sm:text-sm text-black font-medium">lumen.ly</span>
-                  </button>
-                  <button 
-                    onClick={() => console.log('Clicked: violet.noir')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                  </div>
+                  <div className="flex flex-col items-center space-y-1">
+                    <button 
+                      onClick={() => openStory('violet.noir')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg transition-transform hover:scale-105" 
+                      style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}
+                    >
                       <div className="w-full h-full rounded-full bg-white p-0.5">
                         <img src="/violet.png" alt="violet.noir" className="w-full h-full rounded-full object-cover" />
                       </div>
-                    </div>
+                    </button>
                     <span className="text-xs sm:text-sm text-black font-medium">violet.noir</span>
-                  </button>
-                  <button 
-                    onClick={() => console.log('Clicked: beneastman')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                  </div>
+                  
+                  <div className="flex flex-col items-center space-y-1">
+                    <button 
+                      onClick={() => openStory('beneastman')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg transition-transform hover:scale-105" 
+                      style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}
+                    >
                       <div className="w-full h-full rounded-full bg-white p-0.5">
                         <img src="/ben.jpg" alt="beneastman" className="w-full h-full rounded-full object-cover" />
                       </div>
-                    </div>
+                    </button>
                     <span className="text-xs sm:text-sm text-black font-medium">beneastman</span>
-                  </button>
-                  <button 
-                    onClick={() => console.log('Clicked: lifeofmads')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                  </div>
+                  
+                  <div className="flex flex-col items-center space-y-1">
+                    <button 
+                      onClick={() => openStory('lifeofmads')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg transition-transform hover:scale-105" 
+                      style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}
+                    >
                       <div className="w-full h-full rounded-full bg-white p-0.5">
                         <img src="/mads.png" alt="lifeofmads" className="w-full h-full rounded-full object-cover" />
                       </div>
-                    </div>
+                    </button>
                     <span className="text-xs sm:text-sm text-black font-medium">lifeofmads</span>
-                  </button>
-                  <button 
-                    onClick={() => console.log('Clicked: coraoconell')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                  </div>
+                  
+                  <div className="flex flex-col items-center space-y-1">
+                    <button 
+                      onClick={() => openStory('coraoconell')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg transition-transform hover:scale-105" 
+                      style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}
+                    >
                       <div className="w-full h-full rounded-full bg-white p-0.5">
                         <img src="/cora.png" alt="coraoconell" className="w-full h-full rounded-full object-cover" />
                       </div>
-                    </div>
+                    </button>
                     <span className="text-xs sm:text-sm text-black font-medium">coraoconell</span>
-                  </button>
-                  <button 
-                    onClick={() => console.log('Clicked: chilithedog')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                  </div>
+                  <div className="flex flex-col items-center space-y-1">
+                    <button 
+                      onClick={() => openStory('chilithedog')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg transition-transform hover:scale-105" 
+                      style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}
+                    >
                       <div className="w-full h-full rounded-full bg-white p-0.5">
                         <img src="/chili.png" alt="chilithedog" className="w-full h-full rounded-full object-cover" />
                       </div>
-                    </div>
+                    </button>
                     <span className="text-xs sm:text-sm text-black font-medium">chilithedog</span>
-                  </button>
-                  <button 
-                    onClick={() => console.log('Clicked: glow.with.indie')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                  </div>
+                  
+                  <div className="flex flex-col items-center space-y-1">
+                    <button 
+                      onClick={() => openStory('glow.with.indie')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg transition-transform hover:scale-105" 
+                      style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}
+                    >
                       <div className="w-full h-full rounded-full bg-white p-0.5">
                         <img src="/indie.png" alt="glow.with.indie" className="w-full h-full rounded-full object-cover" />
                       </div>
-                    </div>
+                    </button>
                     <span className="text-xs sm:text-sm text-black font-medium">glow.with.indie</span>
-                  </button>
-                  <button 
-                    onClick={() => console.log('Clicked: lilyjade')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                  </div>
+                  
+                  <div className="flex flex-col items-center space-y-1">
+                    <button 
+                      onClick={() => openStory('lilyjade')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg transition-transform hover:scale-105" 
+                      style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}
+                    >
                       <div className="w-full h-full rounded-full bg-white p-0.5">
                         <img src="/lily.png" alt="lilyjade" className="w-full h-full rounded-full object-cover" />
                       </div>
-                    </div>
+                    </button>
                     <span className="text-xs sm:text-sm text-black font-medium">lilyjade</span>
-                  </button>
-                  <button 
-                    onClick={() => console.log('Clicked: derekshone')}
-                    className="flex flex-col items-center space-y-1 sm:space-y-2 min-w-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-300 rounded-lg p-1 flex-shrink-0"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                  </div>
+                  
+                  <div className="flex flex-col items-center space-y-1">
+                    <button 
+                      onClick={() => openStory('derekshone')}
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full p-1 shadow-lg transition-transform hover:scale-105" 
+                      style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}
+                    >
                       <div className="w-full h-full rounded-full bg-white p-0.5">
                         <img src="/derek.png" alt="derekshone" className="w-full h-full rounded-full object-cover" />
                       </div>
-                    </div>
+                    </button>
                     <span className="text-xs sm:text-sm text-black font-medium">derekshone</span>
-                  </button>
+                  </div>
                 </div>
                 
                 {/* Right Arrow */}
@@ -389,7 +503,7 @@ export default function Home() {
                   </button>
                   
                   <Link 
-                    href={`/lists/${list.id}`}
+                    href={`/messages/lists/${list.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${list.title}`}
@@ -415,6 +529,45 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Story Viewer */}
+      <StoryViewer
+        isOpen={storyViewer.isOpen}
+        onClose={closeStory}
+        initialStoryIndex={storyViewer.initialStoryIndex}
+        creatorUsername={storyViewer.creatorUsername}
+        allCreators={allCreators}
+        onMention={(username, avatar, storyId) => 
+          showNotification('repost', username, avatar, storyId)
+        }
+      />
+
+      {/* Story Creator */}
+      <StoryCreator
+        isOpen={storyCreator}
+        onClose={() => setStoryCreator(false)}
+        onSave={handleSaveStory}
+        username="menaparikh"
+        avatar="/actualmena.png"
+      />
+
+      {/* Demo Notification Trigger */}
+      <button
+        onClick={() => showNotification('repost', 'violet.noir', '/violet.png', 'demo-story-1')}
+        className="fixed bottom-4 left-4 bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-purple-700 transition-colors z-40"
+      >
+        Demo: violet.noir mentioned you
+      </button>
+
+      {/* Notification */}
+      {notification.isOpen && notification.data && (
+        <Notification
+          isOpen={notification.isOpen}
+          onClose={() => setNotification(prev => ({ ...prev, isOpen: false }))}
+          notification={notification.data}
+          onViewStory={handleViewStory}
+        />
+      )}
     </main>
   );
 }

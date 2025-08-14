@@ -3,7 +3,7 @@
 import React, { useState, use } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { ArrowLeft, Heart, Share2, MoreVertical, Bookmark, Star, Eye, MessageCircle, Calendar, User, Plus } from "lucide-react";
+import { ArrowLeft, Heart, Share2, MoreVertical, Bookmark, Star, Eye, MessageCircle, Calendar, User, Plus, Filter, SortAsc, Download, Edit3, CheckCircle, Clock, TrendingUp, Users, FileText, ExternalLink, Copy, Flag, Settings, BookOpen, CheckSquare, Square } from "lucide-react";
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -17,6 +17,21 @@ type ListItem = {
   author?: string;
   director?: string;
   imageUrl?: string;
+  userRating?: number;
+  isCompleted?: boolean;
+  isInProgress?: boolean;
+  notes?: string;
+  dateAdded?: string;
+};
+
+type RelatedList = {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  createdBy: string;
+  likes: number;
+  category: string;
 };
 
 export default function ListDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -29,10 +44,40 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [newComment, setNewComment] = useState('');
   const [newReply, setNewReply] = useState('');
+  
+  // New state variables for enhanced features
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState('title');
+  const [filterGenre, setFilterGenre] = useState('');
+  const [filterYear, setFilterYear] = useState('');
+  const [showNotes, setShowNotes] = useState<{ [key: string]: boolean }>({});
+  const [itemNotes, setItemNotes] = useState<{ [key: string]: string }>({});
+  const [showRelatedLists, setShowRelatedLists] = useState(true);
+  const [readingProgress, setReadingProgress] = useState<{ [key: string]: 'not-started' | 'in-progress' | 'completed' }>({});
+  const [userRatings, setUserRatings] = useState<{ [key: string]: number }>({});
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [shareMessage, setShareMessage] = useState('');
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Get list data based on ID
   const getListData = (id: string) => {
-    const listDataMap: { [key: string]: any } = {
+    const listDataMap: { [key: string]: {
+      id: string;
+      title: string;
+      description: string;
+      createdBy: string;
+      imageUrl: string;
+      lastEdited: string;
+      totalItems: number;
+      likes: number;
+      views: number;
+      comments: number;
+      category: string;
+      tags: string[];
+      collaboration: string;
+      contributors: string[];
+      allowComments: boolean;
+    } } = {
       '1': {
         id: '1',
         title: 'Horror Books for Teens',
@@ -444,7 +489,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
     }
   };
 
-  const handlePostReply = (commentId: string) => {
+  const handlePostReply = () => {
     if (newReply.trim()) {
       alert('Reply posted! (This is a mock - in a real app, this would save to the database)');
       setNewReply('');
@@ -452,19 +497,143 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
     }
   };
 
-  const renderStars = (rating: number) => {
+  // Enhanced functionality
+  const handleItemRating = (itemId: string, rating: number) => {
+    setUserRatings(prev => ({ ...prev, [itemId]: rating }));
+    alert(`Rated ${rating} stars! (This would save to your profile)`);
+  };
+
+  const handleReadingProgress = (itemId: string, status: 'not-started' | 'in-progress' | 'completed') => {
+    setReadingProgress(prev => ({ ...prev, [itemId]: status }));
+    alert(`Marked as ${status.replace('-', ' ')}! (This would save to your profile)`);
+  };
+
+  const handleAddNote = (itemId: string, note: string) => {
+    setItemNotes(prev => ({ ...prev, [itemId]: note }));
+    setShowNotes(prev => ({ ...prev, [itemId]: false }));
+    alert('Note saved! (This would save to your profile)');
+  };
+
+  const handleExportList = (format: 'csv' | 'json' | 'pdf') => {
+    alert(`Exporting list as ${format.toUpperCase()}... (This would generate and download the file)`);
+    setShowExportMenu(false);
+  };
+
+  const handleShareWithMessage = () => {
+    if (shareMessage.trim()) {
+      if (navigator.share) {
+        navigator.share({
+          title: listData.title,
+          text: `${shareMessage}\n\n${listData.description}\n\nCheck out this list:`,
+          url: window.location.href
+        });
+      } else {
+        navigator.clipboard.writeText(`${shareMessage}\n\n${window.location.href}`);
+        alert('Link and message copied to clipboard!');
+      }
+      setShowShareModal(false);
+      setShareMessage('');
+    }
+  };
+
+  const getFilteredAndSortedItems = () => {
+    let filtered = [...listItems];
+    
+    // Apply filters
+    if (filterGenre) {
+      filtered = filtered.filter(item => item.genre.toLowerCase().includes(filterGenre.toLowerCase()));
+    }
+    if (filterYear) {
+      filtered = filtered.filter(item => item.year.toString().includes(filterYear));
+    }
+    
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'rating':
+          return b.rating - a.rating;
+        case 'year':
+          return b.year - a.year;
+        case 'genre':
+          return a.genre.localeCompare(b.genre);
+        default:
+          return 0;
+      }
+    });
+    
+    return filtered;
+  };
+
+  const getProgressStats = () => {
+    const total = listItems.length;
+    const completed = Object.values(readingProgress).filter(status => status === 'completed').length;
+    const inProgress = Object.values(readingProgress).filter(status => status === 'in-progress').length;
+    const notStarted = total - completed - inProgress;
+    
+    return { total, completed, inProgress, notStarted };
+  };
+
+  const getRelatedLists = (): RelatedList[] => {
+    const relatedLists: RelatedList[] = [
+      {
+        id: '13',
+        title: 'More Horror Books',
+        description: 'Additional spine-chilling reads for horror enthusiasts.',
+        imageUrl: '/horror.png',
+        createdBy: 'Emma Wilson',
+        likes: 156,
+        category: 'Books'
+      },
+      {
+        id: '14',
+        title: 'Teen Fiction Collection',
+        description: 'Engaging young adult fiction for every reader.',
+        imageUrl: '/comedy.png',
+        createdBy: 'Sarah Johnson',
+        likes: 203,
+        category: 'Books'
+      },
+      {
+        id: '15',
+        title: 'Supernatural Stories',
+        description: 'Mystical and supernatural tales for all ages.',
+        imageUrl: '/documentary.png',
+        createdBy: 'Mike Davis',
+        likes: 178,
+        category: 'Books'
+      }
+    ];
+    
+    return relatedLists;
+  };
+
+  const renderStars = (rating: number, interactive = false, onRatingChange?: (rating: number) => void) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`w-4 h-4 ${
+        className={`w-4 h-4 cursor-pointer transition-colors ${
           i < Math.floor(rating) 
             ? 'fill-yellow-400 text-yellow-400' 
             : i < rating 
               ? 'fill-yellow-400/50 text-yellow-400' 
               : 'text-gray-300'
-        }`}
+        } ${interactive ? 'hover:scale-110' : ''}`}
+        onClick={() => interactive && onRatingChange && onRatingChange(i + 1)}
       />
     ));
+  };
+
+  const renderProgressIcon = (status: 'not-started' | 'in-progress' | 'completed') => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case 'in-progress':
+        return <Clock className="w-5 h-5 text-yellow-500" />;
+      default:
+        return <Square className="w-5 h-5 text-gray-400" />;
+    }
   };
 
   return (
@@ -505,11 +674,43 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
             </button>
             
             <button
-              onClick={handleShare}
+              onClick={() => setShowShareModal(true)}
               className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
             >
               <Share2 className="w-5 h-5 text-gray-600" />
             </button>
+            
+            <div className="relative">
+              <button
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+              >
+                <Download className="w-5 h-5 text-gray-600" />
+              </button>
+              
+              {showExportMenu && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <button 
+                    onClick={() => handleExportList('csv')}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Export as CSV
+                  </button>
+                  <button 
+                    onClick={() => handleExportList('json')}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Export as JSON
+                  </button>
+                  <button 
+                    onClick={() => handleExportList('pdf')}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Export as PDF
+                  </button>
+                </div>
+              )}
+            </div>
             
             <div className="relative">
               <button
@@ -526,6 +727,9 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                   </button>
                   <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                     Copy Link
+                  </button>
+                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    Edit List
                   </button>
                 </div>
               )}
@@ -634,6 +838,47 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
               </CardContent>
             </Card>
 
+            {/* Related Lists Section */}
+            <Card className="mb-6 overflow-hidden rounded-xl border border-gray-100" style={{ backgroundColor: '#FFFCF9' }}>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                  <TrendingUp className="w-5 h-5 text-purple-600" />
+                  <span>Related Lists</span>
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {getRelatedLists().map((list) => (
+                    <Link key={list.id} href={`/messages/lists/restoflists`} className="block">
+                      <div className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="relative w-12 h-12 rounded-lg overflow-hidden">
+                            <Image
+                              src={list.imageUrl}
+                              alt={list.title}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 text-sm">{list.title}</h4>
+                            <p className="text-xs text-gray-500">by {list.createdBy}</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">{list.description}</p>
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>{list.category}</span>
+                          <div className="flex items-center space-x-1">
+                            <Heart className="w-3 h-3" />
+                            <span>{list.likes}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Comments Section */}
             {showComments && listData.allowComments && (
               <Card className="mb-6 overflow-hidden rounded-xl border border-gray-100" style={{ backgroundColor: '#FFFCF9' }}>
@@ -717,7 +962,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                                   Cancel
                                 </button>
                                 <button 
-                                  onClick={() => handlePostReply(comment.id)}
+                                  onClick={() => handlePostReply()}
                                   className="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                                 >
                                   Reply
@@ -806,20 +1051,88 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
 
             {/* List Items */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                {listData.category === 'Books' ? 'Books' : 
-                 listData.category === 'Movies' ? 'Movies' :
-                 listData.category === 'Food' ? 'Recipes' :
-                 listData.category === 'Photography' ? 'Tips' :
-                 listData.category === 'Travel' ? 'Destinations' :
-                 listData.category === 'Technology' ? 'Tools' :
-                 listData.category === 'Gardening' ? 'Plants' :
-                 listData.category === 'Fitness' ? 'Routines' :
-                 listData.category === 'DIY' ? 'Projects' :
-                 'Items'} in this list
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {listData.category === 'Books' ? 'Books' : 
+                   listData.category === 'Movies' ? 'Movies' :
+                   listData.category === 'Food' ? 'Recipes' :
+                   listData.category === 'Photography' ? 'Tips' :
+                   listData.category === 'Travel' ? 'Destinations' :
+                   listData.category === 'Technology' ? 'Tools' :
+                   listData.category === 'Gardening' ? 'Plants' :
+                   listData.category === 'Fitness' ? 'Routines' :
+                   listData.category === 'DIY' ? 'Projects' :
+                   'Items'} in this list ({getFilteredAndSortedItems().length})
+                </h3>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`p-2 rounded-lg border transition-colors ${
+                      showFilters ? 'border-purple-300 bg-purple-50 text-purple-600' : 'border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Filter className="w-4 h-4" />
+                  </button>
+                  
+                  <div className="relative">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="p-2 rounded-lg border border-gray-300 bg-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                      <option value="title">Sort by Title</option>
+                      <option value="rating">Sort by Rating</option>
+                      <option value="year">Sort by Year</option>
+                      <option value="genre">Sort by Genre</option>
+                    </select>
+                    <SortAsc className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
               
-              {listItems.map((item) => (
+              {/* Filter Controls */}
+              {showFilters && (
+                <Card className="mb-4 overflow-hidden rounded-xl border border-gray-100" style={{ backgroundColor: '#FFFCF9' }}>
+                  <CardContent className="p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Genre</label>
+                        <input
+                          type="text"
+                          value={filterGenre}
+                          onChange={(e) => setFilterGenre(e.target.value)}
+                          placeholder="e.g., Horror, Comedy..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Year</label>
+                        <input
+                          type="text"
+                          value={filterYear}
+                          onChange={(e) => setFilterYear(e.target.value)}
+                          placeholder="e.g., 2020, 2019..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div className="flex items-end">
+                        <button
+                          onClick={() => {
+                            setFilterGenre('');
+                            setFilterYear('');
+                          }}
+                          className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          Clear Filters
+                        </button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
+              {getFilteredAndSortedItems().map((item) => (
                 <Card key={item.id} className="overflow-hidden rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300" style={{ backgroundColor: '#FFFCF9' }}>
                   <CardContent className="p-6">
                     <div className="flex gap-4">
@@ -838,30 +1151,150 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                       {/* Item Details */}
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
-                          <h4 className="text-lg font-semibold text-gray-900">{item.title}</h4>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <h4 className="text-lg font-semibold text-gray-900">{item.title}</h4>
+                              {renderProgressIcon(readingProgress[item.id] || 'not-started')}
+                            </div>
+                            <p className="text-gray-600 text-sm mb-3">{item.description}</p>
+                          </div>
+                          
                           <div className="flex items-center space-x-2">
                             <div className="flex items-center space-x-1">
                               {renderStars(item.rating)}
                               <span className="text-sm text-gray-500 ml-1">({item.rating})</span>
                             </div>
-
                           </div>
                         </div>
                         
-                        <p className="text-gray-600 text-sm mb-3">{item.description}</p>
-                        
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                           <span>{item.author ? `By ${item.author}` : item.director ? `Directed by ${item.director}` : `By ${listData.createdBy}`}</span>
                           <span>•</span>
                           <span>{item.year}</span>
                           <span>•</span>
                           <span className="px-2 py-1 bg-gray-100 rounded-full">{item.genre}</span>
                         </div>
+                        
+                        {/* Interactive Controls */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            {/* User Rating */}
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xs text-gray-500">Your Rating:</span>
+                              <div className="flex items-center space-x-1">
+                                {renderStars(userRatings[item.id] || 0, true, (rating) => handleItemRating(item.id, rating))}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            {/* Notes Button */}
+                            <button
+                              onClick={() => setShowNotes(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+                              className="p-2 text-gray-500 hover:text-purple-600 transition-colors"
+                              title="Add Notes"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </button>
+                            
+                            {/* External Link */}
+                            <button
+                              onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(item.title)}`, '_blank')}
+                              className="p-2 text-gray-500 hover:text-blue-600 transition-colors"
+                              title="Search Online"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Notes Section */}
+                        {showNotes[item.id] && (
+                          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                            <textarea
+                              value={itemNotes[item.id] || ''}
+                              onChange={(e) => setItemNotes(prev => ({ ...prev, [item.id]: e.target.value }))}
+                              placeholder="Add your notes about this item..."
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                              rows={3}
+                            />
+                            <div className="flex justify-end space-x-2 mt-2">
+                              <button
+                                onClick={() => setShowNotes(prev => ({ ...prev, [item.id]: false }))}
+                                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={() => handleAddNote(item.id, itemNotes[item.id] || '')}
+                                className="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                              >
+                                Save Note
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Display Saved Notes */}
+                        {itemNotes[item.id] && !showNotes[item.id] && (
+                          <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                            <div className="flex items-start justify-between">
+                              <p className="text-sm text-purple-800 italic">"{itemNotes[item.id]}"</p>
+                              <button
+                                onClick={() => setShowNotes(prev => ({ ...prev, [item.id]: true }))}
+                                className="ml-2 p-1 text-purple-600 hover:text-purple-800 transition-colors"
+                              >
+                                <Edit3 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
+
+              {/* Related Lists Section */}
+              <Card className="mb-6 overflow-hidden rounded-xl border border-gray-100" style={{ backgroundColor: '#FFFCF9' }}>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                    <span>Related Lists</span>
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {getRelatedLists().map((list) => (
+                      <Link key={list.id} href={`/messages/lists/${list.id}`} className="block">
+                        <div className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <div className="relative w-12 h-12 rounded-lg overflow-hidden">
+                              <Image
+                                src={list.imageUrl}
+                                alt={list.title}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 text-sm">{list.title}</h4>
+                              <p className="text-xs text-gray-500">by {list.createdBy}</p>
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2 line-clamp-2">{list.description}</p>
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <span>{list.category}</span>
+                            <div className="flex items-center space-x-1">
+                              <Heart className="w-3 h-3" />
+                              <span>{list.likes}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Add to List Button for Publicly Collaborative Lists */}
               {listData.collaboration === 'public' && (
@@ -883,6 +1316,39 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
           </div>
         </div>
       </main>
+      
+      {/* Share Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Share This List</h3>
+            <textarea
+              value={shareMessage}
+              onChange={(e) => setShareMessage(e.target.value)}
+              placeholder="Add a personal message (optional)..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none mb-4"
+              rows={3}
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => {
+                  setShowShareModal(false);
+                  setShareMessage('');
+                }}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleShareWithMessage}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Share
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
 import { Send, Settings, Grid, Bookmark, Heart, Repeat } from "lucide-react";
+import StoryCreator from '@/app/components/story-creator';
 
 type ProfilePost = {
   id: string;
@@ -23,6 +24,7 @@ export default function Profile_page() {
   const [savedContentType, setSavedContentType] = useState<'individual' | 'collections'>('individual');
   const [favorites, setFavorites] = useState<Set<string>>(new Set(['2', '3', '6', '7'])); // Pre-saved some items for demo
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set(['1', '3', '5', '7'])); // Pre-liked some items for demo (individual lists only)
+  const [storyCreator, setStoryCreator] = useState(false);
 
   const profileData = {
     username: 'menaparikh',
@@ -226,10 +228,25 @@ export default function Profile_page() {
               <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-8">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
-                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
-                    <div className="w-full h-full rounded-full bg-white p-0.5">
-                      <img src={profileData.avatar} alt={profileData.username} className="w-full h-full rounded-full object-cover" />
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="relative">
+                      <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
+                        <div className="w-full h-full rounded-full bg-white p-0.5">
+                          <img src={profileData.avatar} alt={profileData.username} className="w-full h-full rounded-full object-cover" />
+                        </div>
+                      </div>
+                      
+                      {/* Create Story Plus Button */}
+                      <button
+                        onClick={() => setStoryCreator(true)}
+                        className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 hover:scale-110 border-2 border-white"
+                      >
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
                     </div>
+                    <span className="text-xs text-gray-600 font-medium">Your story</span>
                   </div>
                 </div>
 
@@ -441,7 +458,7 @@ export default function Profile_page() {
                   </button>
                   
                   <Link 
-                    href={`/lists/${post.id}`}
+                    href={`/messages/lists/${post.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${post.title}`}
@@ -616,7 +633,7 @@ export default function Profile_page() {
                   </button>
                   
                   <Link 
-                    href={`/lists/${post.id}`}
+                    href={`/messages/lists/${post.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${post.title}`}
@@ -686,7 +703,7 @@ export default function Profile_page() {
                       </button>
                       
                       <Link 
-                        href={`/lists/${post.id}`}
+                        href={`/messages/lists/${post.id}`}
                         className="relative h-44 w-full block focus:outline-none focus:ring-2"
                         style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                         aria-label={`View details for ${post.title}`}
@@ -730,6 +747,18 @@ export default function Profile_page() {
           </div>
         </div>
       </div>
+      
+      {/* Story Creator */}
+      {storyCreator && (
+        <StoryCreator
+          isOpen={storyCreator}
+          onClose={() => setStoryCreator(false)}
+          onSave={(story) => {
+            console.log('Story saved:', story);
+            setStoryCreator(false);
+          }}
+        />
+      )}
     </main>
   );
 }
