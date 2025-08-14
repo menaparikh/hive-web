@@ -6,7 +6,11 @@ import { Home, Menu, Search, Plus, MessageCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
-export function Sidebar() {
+interface SidebarProps {
+    hasUnreadMessages?: boolean;
+}
+
+export function Sidebar({ hasUnreadMessages = false }: SidebarProps) {
     const [isExpanded, setIsExpanded] = useState(false)
     
     const toggleSidebar = () => {
@@ -85,11 +89,14 @@ export function Sidebar() {
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            className={`hover:bg-gray-200 text-black rounded-2xl transition-all duration-300 ${
+                            className={`hover:bg-gray-200 text-black rounded-2xl transition-all duration-300 relative ${
                                 isExpanded ? 'w-full h-12 justify-start px-4' : 'w-12 h-12'
                             }`}
                         >
                             <MessageCircle className="h-5 w-5" />
+                            {hasUnreadMessages && (
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full border-2 border-white"></div>
+                            )}
                             {isExpanded && <span className="ml-3">Messages</span>}
                         </Button>
                     </Link>

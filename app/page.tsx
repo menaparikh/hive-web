@@ -174,7 +174,7 @@ export default function Home() {
   return (
     <main className="min-h-screen font-sans" style={{ backgroundColor: '#FFFCF9', fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
       <div className="fixed inset-0" style={{ background: 'linear-gradient(135deg, rgba(255, 209, 102, 0.02) 0%, rgba(6, 214, 160, 0.02) 50%, rgba(38, 84, 124, 0.02) 100%)' }}></div>
-      <Sidebar />
+      <Sidebar hasUnreadMessages={true} />
       <div className={`transition-all duration-300 ease-in-out ml-20 mr-2 sm:mr-4 md:mr-6 relative z-10`}>
         {/* Header */}
         <div className="p-3 sm:p-4 md:p-6">

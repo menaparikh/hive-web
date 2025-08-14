@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
 import { Send, Settings, Grid, Bookmark, Heart, Repeat } from "lucide-react";
@@ -14,11 +15,14 @@ type ProfilePost = {
   comments: number;
   isLiked: boolean;
   isSaved: boolean;
+  type?: 'individual' | 'collection';
 };
 
 export default function Profile_page() {
   const [activeTab, setActiveTab] = useState('posts');
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [savedContentType, setSavedContentType] = useState<'individual' | 'collections'>('individual');
+  const [favorites, setFavorites] = useState<Set<string>>(new Set(['2', '3', '6', '7'])); // Pre-saved some items for demo
+  const [likedItems, setLikedItems] = useState<Set<string>>(new Set(['1', '3', '5', '7'])); // Pre-liked some items for demo (individual lists only)
 
   const profileData = {
     username: 'menaparikh',
@@ -26,7 +30,7 @@ export default function Profile_page() {
     bio: 'hello mena',
     avatar: '/actualmena.png',
     posts: 9,
-    followers: 1247,
+    followers: 1800,
     following: 892,
     isVerified: true,
     isFollowing: false
@@ -40,7 +44,8 @@ export default function Profile_page() {
       likes: 234,
       comments: 18,
       isLiked: true,
-      isSaved: false
+      isSaved: false,
+      type: 'individual'
     },
     {
       id: '2',
@@ -49,7 +54,8 @@ export default function Profile_page() {
       likes: 189,
       comments: 12,
       isLiked: false,
-      isSaved: true
+      isSaved: true,
+      type: 'individual'
     },
     {
       id: '3',
@@ -58,7 +64,8 @@ export default function Profile_page() {
       likes: 456,
       comments: 34,
       isLiked: true,
-      isSaved: true
+      isSaved: true,
+      type: 'individual'
     },
     {
       id: '4',
@@ -67,7 +74,8 @@ export default function Profile_page() {
       likes: 321,
       comments: 25,
       isLiked: false,
-      isSaved: false
+      isSaved: false,
+      type: 'individual'
     },
     {
       id: '5',
@@ -76,7 +84,8 @@ export default function Profile_page() {
       likes: 567,
       comments: 42,
       isLiked: true,
-      isSaved: false
+      isSaved: false,
+      type: 'individual'
     },
     {
       id: '6',
@@ -85,7 +94,8 @@ export default function Profile_page() {
       likes: 198,
       comments: 15,
       isLiked: false,
-      isSaved: true
+      isSaved: true,
+      type: 'collection'
     },
     {
       id: '7',
@@ -94,7 +104,8 @@ export default function Profile_page() {
       likes: 789,
       comments: 67,
       isLiked: true,
-      isSaved: true
+      isSaved: true,
+      type: 'individual'
     },
     {
       id: '8',
@@ -103,7 +114,8 @@ export default function Profile_page() {
       likes: 432,
       comments: 28,
       isLiked: false,
-      isSaved: false
+      isSaved: false,
+      type: 'individual'
     },
     {
       id: '9',
@@ -112,7 +124,8 @@ export default function Profile_page() {
       likes: 345,
       comments: 22,
       isLiked: true,
-      isSaved: false
+      isSaved: false,
+      type: 'collection'
     }
   ];
 
@@ -146,44 +159,12 @@ export default function Profile_page() {
     }
   ];
 
-  const likedPosts: ProfilePost[] = [
-    {
-      id: 'l1',
-      title: 'Creative DIY Projects',
-      imageUrl: '/diy.png',
-      likes: 445,
-      comments: 23,
-      isLiked: true,
-      isSaved: true
-    },
-    {
-      id: 'l2',
-      title: 'Garden Design Ideas',
-      imageUrl: '/garden.png',
-      likes: 178,
-      comments: 9,
-      isLiked: true,
-      isSaved: false
-    },
-    {
-      id: 'l3',
-      title: 'Workout Motivation',
-      imageUrl: '/workout.png',
-      likes: 567,
-      comments: 31,
-      isLiked: true,
-      isSaved: true
-    },
-    {
-      id: 'l4',
-      title: 'Film Photography Guide',
-      imageUrl: '/camera.png',
-      likes: 298,
-      comments: 16,
-      isLiked: true,
-      isSaved: false
-    }
-  ];
+  // Filter liked content based on user's actual heart clicks (individual lists only)
+  const likedIndividual = posts.filter(post => likedItems.has(post.id) && post.type !== 'collection');
+
+  // Filter saved content based on user's actual bookmark actions
+  const savedIndividual = posts.filter(post => favorites.has(post.id) && post.type !== 'collection');
+  const savedCollections = posts.filter(post => favorites.has(post.id) && post.type === 'collection');
 
   const toggleFavorite = (postId: string) => {
     setFavorites(prev => {
@@ -194,6 +175,18 @@ export default function Profile_page() {
         newFavorites.add(postId);
       }
       return newFavorites;
+    });
+  };
+
+  const toggleLike = (postId: string) => {
+    setLikedItems(prev => {
+      const newLikedItems = new Set(prev);
+      if (newLikedItems.has(postId)) {
+        newLikedItems.delete(postId);
+      } else {
+        newLikedItems.add(postId);
+      }
+      return newLikedItems;
     });
   };
 
@@ -210,7 +203,7 @@ export default function Profile_page() {
   return (
     <main className="min-h-screen font-sans" style={{ backgroundColor: '#FFFCF9', fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
       <div className="fixed inset-0" style={{ background: 'linear-gradient(135deg, rgba(255, 209, 102, 0.02) 0%, rgba(6, 214, 160, 0.02) 50%, rgba(38, 84, 124, 0.02) 100%)' }}></div>
-      <Sidebar />
+      <Sidebar hasUnreadMessages={true} />
       <div className={`transition-all duration-300 ease-in-out ml-20 mr-2 sm:mr-4 md:mr-6 relative z-10`}>
         {/* Header */}
         <div className="p-3 sm:p-4 md:p-6">
@@ -266,12 +259,12 @@ export default function Profile_page() {
 
                   {/* Action Buttons */}
                   <div className="flex items-center space-x-3">
-                    <button className="px-4 py-2 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition-colors">
+                    <Link href="/profile/edit" className="px-4 py-2 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition-colors">
                       Edit Profile
-                    </button>
-                    <button className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                    </Link>
+                    <Link href="/profile/settings" className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
                       <Settings className="w-5 h-5 text-gray-600" />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -383,13 +376,19 @@ export default function Profile_page() {
                     <h2 className="text-lg font-semibold text-gray-900 mb-1">{post.title}</h2>
                     <div className="flex items-center justify-between text-sm text-gray-500">
                       <div className="flex items-center space-x-3">
-                        <span className="flex items-center space-x-1">
-                          <Heart className={`w-4 h-4 ${post.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleLike(post.id);
+                          }}
+                          className="flex items-center space-x-1 hover:scale-105 transition-transform"
+                        >
+                          <Heart className={`w-4 h-4 ${likedItems.has(post.id) ? 'fill-red-500 text-red-500' : ''}`} />
                           <span>{formatNumber(post.likes)}</span>
-                        </span>
+                        </button>
                         <span>{formatNumber(post.comments)} comments</span>
                       </div>
-                      {post.isSaved && (
+                      {favorites.has(post.id) && (
                         <Bookmark className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                       )}
                     </div>
@@ -471,7 +470,40 @@ export default function Profile_page() {
                 </Card>
               ))}
 
-              {activeTab === 'saved' && posts.filter(post => post.isSaved).map((post) => (
+              {activeTab === 'saved' && (
+                <>
+                  {/* Saved Content Type Toggle */}
+                  <div className="col-span-full mb-4">
+                    <div className="bg-white/70 backdrop-blur-sm rounded-lg border border-gray-100 p-4">
+                      <div className="flex items-center justify-center space-x-4">
+                        <button
+                          onClick={() => setSavedContentType('individual')}
+                          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                            savedContentType === 'individual'
+                              ? 'bg-purple-100 text-purple-700 border border-purple-300'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          <Bookmark className="w-4 h-4" />
+                          <span className="font-medium">Individual Lists</span>
+                        </button>
+                        <button
+                          onClick={() => setSavedContentType('collections')}
+                          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                            savedContentType === 'collections'
+                              ? 'bg-purple-100 text-purple-700 border border-purple-300'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          <Bookmark className="w-4 h-4" />
+                          <span className="font-medium">Collections</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Saved Individual Lists */}
+                  {savedContentType === 'individual' && savedIndividual.map((post) => (
                 <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] rounded-lg border border-gray-100 relative" style={{ backgroundColor: '#FFFCF9' }}>
                   {/* Favorite Bookmark */}
                   <button
@@ -539,8 +571,14 @@ export default function Profile_page() {
                 </Card>
               ))}
 
-              {activeTab === 'liked' && likedPosts.map((post) => (
+                  {/* Saved Collections */}
+                  {savedContentType === 'collections' && savedCollections.map((post) => (
                 <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] rounded-lg border border-gray-100 relative" style={{ backgroundColor: '#FFFCF9' }}>
+                  {/* Collection Badge */}
+                  <div className="absolute top-2 left-2 z-10 px-2 py-1 rounded-full bg-purple-500/80 backdrop-blur-sm text-white text-xs font-medium">
+                    Collection
+                  </div>
+                  
                   {/* Favorite Bookmark */}
                   <button
                     onClick={(e) => {
@@ -572,7 +610,7 @@ export default function Profile_page() {
                   </button>
                   
                   <button 
-                    onClick={() => console.log(`Clicked liked post: ${post.id}`)} 
+                    onClick={() => console.log(`Clicked saved collection: ${post.id}`)} 
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${post.title}`}
@@ -583,7 +621,7 @@ export default function Profile_page() {
                         alt={`${post.title} cover`}
                         fill
                         className="object-cover"
-                        priority={post.id === 'l1'}
+                        priority={post.id === 'sc1'}
                       />
                       <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
                     </div>
@@ -606,6 +644,82 @@ export default function Profile_page() {
                   </CardContent>
                 </Card>
               ))}
+                </>
+              )}
+
+              {activeTab === 'liked' && likedIndividual.map((post) => (
+                    <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] rounded-lg border border-gray-100 relative" style={{ backgroundColor: '#FFFCF9' }}>
+                      {/* Favorite Bookmark */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(post.id);
+                        }}
+                        className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-sm"
+                        aria-label={favorites.has(post.id) ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        <Bookmark 
+                          className={`w-5 h-5 transition-all duration-200 ${
+                            favorites.has(post.id) 
+                              ? 'fill-yellow-400 text-yellow-400' 
+                              : 'text-gray-400 hover:text-yellow-400'
+                          }`}
+                        />
+                      </button>
+                      
+                      {/* Share Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShare(post.id, post.title);
+                        }}
+                        className="absolute bottom-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-sm"
+                        aria-label={`Share ${post.title}`}
+                      >
+                        <Send className="w-5 h-5 text-gray-400 hover:text-blue-500 transition-colors duration-200" />
+                      </button>
+                      
+                      <button 
+                        onClick={() => console.log(`Clicked liked post: ${post.id}`)} 
+                        className="relative h-44 w-full block focus:outline-none focus:ring-2"
+                        style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
+                        aria-label={`View details for ${post.title}`}
+                      >
+                        <div className="relative h-full w-full">
+                          <Image
+                            src={post.imageUrl}
+                            alt={`${post.title} cover`}
+                            fill
+                            className="object-cover"
+                            priority={post.id === '1'}
+                          />
+                          <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
+                        </div>
+                      </button>
+                      
+                      <CardContent className="p-4">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-1">{post.title}</h2>
+                        <div className="flex items-center justify-between text-sm text-gray-500">
+                          <div className="flex items-center space-x-3">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleLike(post.id);
+                              }}
+                              className="flex items-center space-x-1 hover:scale-105 transition-transform"
+                            >
+                              <Heart className={`w-4 h-4 ${likedItems.has(post.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                              <span>{formatNumber(post.likes)}</span>
+                            </button>
+                            <span>{formatNumber(post.comments)} comments</span>
+                          </div>
+                          {favorites.has(post.id) && (
+                            <Bookmark className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
             </div>
           </div>
         </div>
