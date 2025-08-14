@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { MessageCircle, Search, MoreVertical, Check, CheckCheck } from "lucide-react";
+import { MessageCircle, Search, MoreVertical, Check, CheckCheck, Send, Paperclip, Smile, ArrowLeft } from "lucide-react";
+import Image from 'next/image';
+import Link from 'next/link';
 
 type Message = {
   id: string;
@@ -17,11 +19,22 @@ type Message = {
   isPinned: boolean;
 };
 
+type ChatMessage = {
+  id: string;
+  sender: string;
+  content: string;
+  timestamp: string;
+  isRead: boolean;
+  avatar: string;
+};
+
 export default function Messages() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showOnlyActive, setShowOnlyActive] = useState(false);
   const [userStatus, setUserStatus] = useState<'online' | 'away' | 'busy' | 'offline'>('online');
   const [showMenu, setShowMenu] = useState(false);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [newMessage, setNewMessage] = useState('');
 
   const messages: Message[] = [
     {
@@ -125,8 +138,86 @@ export default function Messages() {
     }
   ];
 
+  // Mock chat messages data
+  const chatMessages: { [key: string]: ChatMessage[] } = {
+    '1': [
+      {
+        id: '1',
+        sender: 'lumen.ly',
+        content: 'Hi! I saw your horror books list and it looks amazing!',
+        timestamp: '10:30 AM',
+        isRead: true,
+        avatar: '/lumen.png'
+      },
+      {
+        id: '2',
+        sender: 'me',
+        content: 'Thanks! I tried to pick books that are scary but still age-appropriate for teens.',
+        timestamp: '10:32 AM',
+        isRead: true,
+        avatar: '/actualmena.png'
+      },
+      {
+        id: '3',
+        sender: 'lumen.ly',
+        content: 'Have you read "The Graveyard Book" by Neil Gaiman?',
+        timestamp: '10:35 AM',
+        isRead: true,
+        avatar: '/lumen.png'
+      },
+      {
+        id: '4',
+        sender: 'me',
+        content: 'Yes! It\'s a fantastic book. I should add it to the list.',
+        timestamp: '10:37 AM',
+        isRead: true,
+        avatar: '/actualmena.png'
+      },
+      {
+        id: '5',
+        sender: 'lumen.ly',
+        content: 'Thanks for sharing that recipe! I tried it yesterday and it was amazing.',
+        timestamp: '2m ago',
+        isRead: false,
+        avatar: '/lumen.png'
+      }
+    ],
+    '2': [
+      {
+        id: '1',
+        sender: 'violet.noir',
+        content: 'Can you recommend some good horror books?',
+        timestamp: '15m ago',
+        isRead: true,
+        avatar: '/violet.png'
+      }
+    ],
+    '3': [
+      {
+        id: '1',
+        sender: 'beneastman',
+        content: 'The photography tips you shared were really helpful!',
+        timestamp: '1h ago',
+        isRead: false,
+        avatar: '/ben.jpg'
+      }
+    ]
+  };
+
   const handleMessageClick = (messageId: string) => {
-    console.log(`Clicked message: ${messageId}`);
+    setSelectedChat(messageId);
+  };
+
+  const handleSendMessage = () => {
+    if (newMessage.trim() && selectedChat) {
+      // In a real app, this would send the message to the backend
+      console.log('Sending message:', newMessage);
+      setNewMessage('');
+    }
+  };
+
+  const handleBackToMessages = () => {
+    setSelectedChat(null);
   };
 
   const getTimeAgo = (timestamp: string) => {
@@ -167,8 +258,113 @@ export default function Messages() {
       <div className="fixed inset-0" style={{ background: 'linear-gradient(135deg, rgba(255, 209, 102, 0.02) 0%, rgba(6, 214, 160, 0.02) 50%, rgba(38, 84, 124, 0.02) 100%)' }}></div>
       <Sidebar hasUnreadMessages={hasUnreadMessages} />
       <div className={`transition-all duration-300 ease-in-out ml-20 mr-2 sm:mr-4 md:mr-6 relative z-10`}>
-        {/* Header */}
-        <div className="p-3 sm:p-4 md:p-6">
+        
+        {selectedChat ? (
+          // Chat View
+          <div className="h-screen flex flex-col">
+            {/* Chat Header */}
+            <div className="bg-white/70 backdrop-blur-sm border-b border-gray-200 p-4">
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={handleBackToMessages}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 text-gray-600" />
+                </button>
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-full overflow-hidden">
+                      <Image
+                        src={messages.find(m => m.id === selectedChat)?.avatar || ''}
+                        alt="Avatar"
+                        width={40}
+                        height={40}
+                        className="object-cover"
+                      />
+                    </div>
+                    {messages.find(m => m.id === selectedChat)?.isOnline && (
+                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-gray-900">
+                      {messages.find(m => m.id === selectedChat)?.username}
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      {messages.find(m => m.id === selectedChat)?.isOnline ? 'Online' : 'Offline'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {chatMessages[selectedChat]?.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`flex items-end space-x-2 max-w-xs lg:max-w-md ${message.sender === 'me' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                    {message.sender !== 'me' && (
+                      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                        <Image
+                          src={message.avatar}
+                          alt="Avatar"
+                          width={32}
+                          height={32}
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
+                    <div
+                      className={`px-4 py-2 rounded-2xl ${
+                        message.sender === 'me'
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-100 text-gray-900'
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Message Input */}
+            <div className="bg-white/70 backdrop-blur-sm border-t border-gray-200 p-4">
+              <div className="flex items-center space-x-2">
+                <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                  <Paperclip className="w-5 h-5 text-gray-600" />
+                </button>
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    placeholder="Type a message..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                  <button className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                    <Smile className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!newMessage.trim()}
+                  className="p-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Messages List View
+          <>
+            {/* Header */}
+            <div className="p-3 sm:p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
             {/* Empty header space to match other pages */}
           </div>
@@ -355,8 +551,10 @@ export default function Messages() {
                 </Card>
               ))}
             </div>
+                      </div>
           </div>
-        </div>
+        </>
+        )}
       </div>
     </main>
   );

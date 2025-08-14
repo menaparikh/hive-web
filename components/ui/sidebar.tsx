@@ -85,7 +85,7 @@ export function Sidebar({ hasUnreadMessages = false }: SidebarProps) {
                         </Button>
                     </Link>
                     
-                    <Link href="/lists" className="w-full">
+                    <Link href="/messages" className="w-full">
                         <Button 
                             variant="ghost" 
                             size="icon" 

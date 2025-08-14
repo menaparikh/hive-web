@@ -7,13 +7,14 @@ import { ArrowLeft, User, Calendar, MapPin, Link as LinkIcon, UserPlus, UserChec
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function UserProfile({ params }: { params: { username: string } }) {
+export default function UserProfile({ params }: { params: Promise<{ username: string }> }) {
+  const resolvedParams = use(params);
   const [isFollowing, setIsFollowing] = useState(false);
   
   // Mock user data
   const userData = {
-    username: params.username,
-    displayName: params.username === 'john-smith' ? 'John Smith' : params.username.replace('-', ' '),
+    username: resolvedParams.username,
+    displayName: resolvedParams.username === 'john-smith' ? 'John Smith' : resolvedParams.username.replace('-', ' '),
     avatar: '/actualmena.png',
     bio: 'Book lover and list curator. Passionate about sharing great reads with the community.',
     joinDate: '2023-01-15',
@@ -22,7 +23,7 @@ export default function UserProfile({ params }: { params: { username: string } }
     lists: 8,
     followers: 1247,
     following: 892,
-    isCurrentUser: params.username === 'menaparikh' // Check if this is the current user's profile
+    isCurrentUser: resolvedParams.username === 'menaparikh' // Check if this is the current user's profile
   };
 
   return (

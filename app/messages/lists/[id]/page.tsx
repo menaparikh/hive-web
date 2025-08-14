@@ -25,6 +25,10 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [expandedReplies, setExpandedReplies] = useState<{ [key: string]: boolean }>({});
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [newComment, setNewComment] = useState('');
+  const [newReply, setNewReply] = useState('');
 
   // Get list data based on ID
   const getListData = (id: string) => {
@@ -325,7 +329,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
 
   const listItems = getListItems(resolvedParams.id);
 
-  // Mock comments data
+  // Mock comments data with replies
   const comments = [
     {
       id: '1',
@@ -333,7 +337,25 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
       avatar: '/lumen.png',
       comment: 'This is such a great collection! I\'ve read most of these and they\'re perfect for teens who love horror.',
       timestamp: '2 hours ago',
-      likes: 12
+      likes: 12,
+      replies: [
+        {
+          id: '1-1',
+          username: 'john-smith',
+          avatar: '/actualmena.png',
+          comment: 'Thanks! I tried to pick books that are scary but still age-appropriate.',
+          timestamp: '1 hour ago',
+          likes: 5
+        },
+        {
+          id: '1-2',
+          username: 'violet.noir',
+          avatar: '/violet.png',
+          comment: 'I agree, the selection is perfect for teens!',
+          timestamp: '30 minutes ago',
+          likes: 3
+        }
+      ]
     },
     {
       id: '2',
@@ -341,7 +363,8 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
       avatar: '/violet.png',
       comment: 'I would add "The Graveyard Book" by Neil Gaiman to this list. It\'s a fantastic horror book for young adults.',
       timestamp: '5 hours ago',
-      likes: 8
+      likes: 8,
+      replies: []
     },
     {
       id: '3',
@@ -349,7 +372,17 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
       avatar: '/ben.jpg',
       comment: 'Carrie is a classic! Great choice for introducing teens to Stephen King.',
       timestamp: '1 day ago',
-      likes: 15
+      likes: 15,
+      replies: [
+        {
+          id: '3-1',
+          username: 'lumen.ly',
+          avatar: '/lumen.png',
+          comment: 'Absolutely! Carrie was my first Stephen King book too.',
+          timestamp: '12 hours ago',
+          likes: 7
+        }
+      ]
     },
     {
       id: '4',
@@ -357,7 +390,8 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
       avatar: '/mads.png',
       comment: 'The Haunting of Hill House is so atmospheric. Perfect for a spooky read.',
       timestamp: '2 days ago',
-      likes: 6
+      likes: 6,
+      replies: []
     }
   ];
 
@@ -388,6 +422,33 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
       alert(`"${bookTitle}" has been added to this collaborative list!`);
     } else {
       alert('This list is not publicly collaborative. Only the creator can add items.');
+    }
+  };
+
+  const handleToggleReplies = (commentId: string) => {
+    setExpandedReplies(prev => ({
+      ...prev,
+      [commentId]: !prev[commentId]
+    }));
+  };
+
+  const handleReplyClick = (commentId: string) => {
+    setReplyingTo(replyingTo === commentId ? null : commentId);
+    setNewReply('');
+  };
+
+  const handlePostComment = () => {
+    if (newComment.trim()) {
+      alert('Comment posted! (This is a mock - in a real app, this would save to the database)');
+      setNewComment('');
+    }
+  };
+
+  const handlePostReply = (commentId: string) => {
+    if (newReply.trim()) {
+      alert('Reply posted! (This is a mock - in a real app, this would save to the database)');
+      setNewReply('');
+      setReplyingTo(null);
     }
   };
 
@@ -465,9 +526,6 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                   </button>
                   <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                     Copy Link
-                  </button>
-                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    Follow Creator
                   </button>
                 </div>
               )}
@@ -584,34 +642,127 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                   
                   <div className="space-y-4">
                     {comments.map((comment) => (
-                      <div key={comment.id} className="flex space-x-3">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full overflow-hidden">
-                            <Image
-                              src={comment.avatar}
-                              alt={comment.username}
-                              width={40}
-                              height={40}
-                              className="object-cover"
-                            />
+                      <div key={comment.id} className="space-y-3">
+                        {/* Main Comment */}
+                        <div className="flex space-x-3">
+                          <div className="flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full overflow-hidden">
+                              <Image
+                                src={comment.avatar}
+                                alt={comment.username}
+                                width={40}
+                                height={40}
+                                className="object-cover"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <Link href={`/profile/${comment.username}`} className="font-medium text-gray-900 hover:text-purple-600 transition-colors">
+                                {comment.username}
+                              </Link>
+                              <span className="text-sm text-gray-500">{comment.timestamp}</span>
+                            </div>
+                            <p className="text-gray-700 mb-2">{comment.comment}</p>
+                            <div className="flex items-center space-x-4 text-sm text-gray-500">
+                              <button className="flex items-center space-x-1 hover:text-red-500 transition-colors">
+                                <Heart className="w-4 h-4" />
+                                <span>{comment.likes}</span>
+                              </button>
+                              <button 
+                                onClick={() => handleReplyClick(comment.id)}
+                                className="hover:text-purple-600 transition-colors"
+                              >
+                                Reply
+                              </button>
+                              {comment.replies && comment.replies.length > 0 && (
+                                <button 
+                                  onClick={() => handleToggleReplies(comment.id)}
+                                  className="hover:text-purple-600 transition-colors"
+                                >
+                                  {expandedReplies[comment.id] ? 'Hide' : `Show ${comment.replies.length} ${comment.replies.length === 1 ? 'reply' : 'replies'}`}
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <Link href={`/profile/${comment.username}`} className="font-medium text-gray-900 hover:text-purple-600 transition-colors">
-                              {comment.username}
-                            </Link>
-                            <span className="text-sm text-gray-500">{comment.timestamp}</span>
+
+                        {/* Reply Form */}
+                        {replyingTo === comment.id && (
+                          <div className="ml-13 flex space-x-3">
+                            <div className="flex-shrink-0">
+                              <div className="w-8 h-8 rounded-full overflow-hidden">
+                                <Image
+                                  src="/actualmena.png"
+                                  alt="Your avatar"
+                                  width={32}
+                                  height={32}
+                                  className="object-cover"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex-1">
+                              <textarea
+                                value={newReply}
+                                onChange={(e) => setNewReply(e.target.value)}
+                                placeholder={`Reply to ${comment.username}...`}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors resize-none"
+                                rows={2}
+                              />
+                              <div className="flex justify-end space-x-2 mt-2">
+                                <button 
+                                  onClick={() => setReplyingTo(null)}
+                                  className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                                <button 
+                                  onClick={() => handlePostReply(comment.id)}
+                                  className="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                                >
+                                  Reply
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-gray-700 mb-2">{comment.comment}</p>
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
-                            <button className="flex items-center space-x-1 hover:text-red-500 transition-colors">
-                              <Heart className="w-4 h-4" />
-                              <span>{comment.likes}</span>
-                            </button>
-                            <button className="hover:text-purple-600 transition-colors">Reply</button>
+                        )}
+
+                        {/* Replies */}
+                        {comment.replies && comment.replies.length > 0 && expandedReplies[comment.id] && (
+                          <div className="ml-13 space-y-3">
+                            {comment.replies.map((reply) => (
+                              <div key={reply.id} className="flex space-x-3">
+                                <div className="flex-shrink-0">
+                                  <div className="w-8 h-8 rounded-full overflow-hidden">
+                                    <Image
+                                      src={reply.avatar}
+                                      alt={reply.username}
+                                      width={32}
+                                      height={32}
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <Link href={`/profile/${reply.username}`} className="font-medium text-gray-900 hover:text-purple-600 transition-colors text-sm">
+                                      {reply.username}
+                                    </Link>
+                                    <span className="text-xs text-gray-500">{reply.timestamp}</span>
+                                  </div>
+                                  <p className="text-gray-700 mb-2 text-sm">{reply.comment}</p>
+                                  <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                    <button className="flex items-center space-x-1 hover:text-red-500 transition-colors">
+                                      <Heart className="w-3 h-3" />
+                                      <span>{reply.likes}</span>
+                                    </button>
+                                    <button className="hover:text-purple-600 transition-colors">Reply</button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -632,12 +783,17 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                       </div>
                       <div className="flex-1">
                         <textarea
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
                           placeholder="Add a comment..."
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors resize-none"
                           rows={3}
                         />
                         <div className="flex justify-end mt-2">
-                          <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                          <button 
+                            onClick={handlePostComment}
+                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                          >
                             Post Comment
                           </button>
                         </div>
