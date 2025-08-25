@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
 import { Send, Settings, Grid, Bookmark, Heart, Repeat } from "lucide-react";
 import StoryCreator from '@/app/components/story-creator';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 type ProfilePost = {
   id: string;
@@ -22,7 +23,7 @@ type ProfilePost = {
 export default function Profile_page() {
   const [activeTab, setActiveTab] = useState('posts');
   const [savedContentType, setSavedContentType] = useState<'individual' | 'collections'>('individual');
-  const [favorites, setFavorites] = useState<Set<string>>(new Set(['2', '3', '6', '7'])); // Pre-saved some items for demo
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set(['1', '3', '5', '7'])); // Pre-liked some items for demo (individual lists only)
   const [storyCreator, setStoryCreator] = useState(false);
 
@@ -165,20 +166,8 @@ export default function Profile_page() {
   const likedIndividual = posts.filter(post => likedItems.has(post.id) && post.type !== 'collection');
 
   // Filter saved content based on user's actual bookmark actions
-  const savedIndividual = posts.filter(post => favorites.has(post.id) && post.type !== 'collection');
-  const savedCollections = posts.filter(post => favorites.has(post.id) && post.type === 'collection');
-
-  const toggleFavorite = (postId: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(postId)) {
-        newFavorites.delete(postId);
-      } else {
-        newFavorites.add(postId);
-      }
-      return newFavorites;
-    });
-  };
+  const savedIndividual = posts.filter(post => isFavorite(post.id) && post.type !== 'collection');
+  const savedCollections = posts.filter(post => isFavorite(post.id) && post.type === 'collection');
 
   const toggleLike = (postId: string) => {
     setLikedItems(prev => {
@@ -230,10 +219,8 @@ export default function Profile_page() {
                 <div className="flex-shrink-0">
                   <div className="flex flex-col items-center space-y-2">
                     <div className="relative">
-                      <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-1 shadow-lg" style={{ background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)' }}>
-                        <div className="w-full h-full rounded-full bg-white p-0.5">
-                          <img src={profileData.avatar} alt={profileData.username} className="w-full h-full rounded-full object-cover" />
-                        </div>
+                      <div className="w-24 h-24 md:w-32 md:h-32 rounded-full shadow-lg">
+                        <img src={profileData.avatar} alt={profileData.username} className="w-full h-full rounded-full object-cover" />
                       </div>
                       
                       {/* Create Story Plus Button */}
@@ -246,7 +233,6 @@ export default function Profile_page() {
                         </svg>
                       </button>
                     </div>
-                    <span className="text-xs text-gray-600 font-medium">Your story</span>
                   </div>
                 </div>
 
@@ -354,11 +340,11 @@ export default function Profile_page() {
                       toggleFavorite(post.id);
                     }}
                     className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-sm"
-                    aria-label={favorites.has(post.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    aria-label={isFavorite(post.id) ? 'Remove from favorites' : 'Add to favorites'}
                   >
                     <Bookmark 
                       className={`w-5 h-5 transition-all duration-200 ${
-                        favorites.has(post.id) 
+                        isFavorite(post.id) 
                           ? 'fill-yellow-400 text-yellow-400' 
                           : 'text-gray-400 hover:text-yellow-400'
                       }`}
@@ -378,7 +364,7 @@ export default function Profile_page() {
                   </button>
                   
                   <Link 
-                    href={`/lists/${post.id}`}
+                    href={`/messages/lists/${post.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${post.title}`}
@@ -411,7 +397,7 @@ export default function Profile_page() {
                         </button>
                         <span>{formatNumber(post.comments)} comments</span>
                       </div>
-                      {favorites.has(post.id) && (
+                      {isFavorite(post.id) && (
                         <Bookmark className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                       )}
                     </div>
@@ -434,11 +420,11 @@ export default function Profile_page() {
                       toggleFavorite(post.id);
                     }}
                     className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-sm"
-                    aria-label={favorites.has(post.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    aria-label={isFavorite(post.id) ? 'Remove from favorites' : 'Add to favorites'}
                   >
                     <Bookmark 
                       className={`w-5 h-5 transition-all duration-200 ${
-                        favorites.has(post.id) 
+                        isFavorite(post.id) 
                           ? 'fill-yellow-400 text-yellow-400' 
                           : 'text-gray-400 hover:text-yellow-400'
                       }`}
@@ -535,11 +521,11 @@ export default function Profile_page() {
                       toggleFavorite(post.id);
                     }}
                     className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-sm"
-                    aria-label={favorites.has(post.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    aria-label={isFavorite(post.id) ? 'Remove from favorites' : 'Add to favorites'}
                   >
                     <Bookmark 
                       className={`w-5 h-5 transition-all duration-200 ${
-                        favorites.has(post.id) 
+                        isFavorite(post.id) 
                           ? 'fill-yellow-400 text-yellow-400' 
                           : 'text-gray-400 hover:text-yellow-400'
                       }`}
@@ -559,7 +545,7 @@ export default function Profile_page() {
                   </button>
                   
                   <Link 
-                    href={`/lists/${post.id}`}
+                    href={`/messages/lists/${post.id}`}
                     className="relative h-44 w-full block focus:outline-none focus:ring-2"
                     style={{ '--tw-ring-color': '#06D6A0' } as React.CSSProperties & { '--tw-ring-color': string }}
                     aria-label={`View details for ${post.title}`}
@@ -586,7 +572,7 @@ export default function Profile_page() {
                         </span>
                         <span>{formatNumber(post.comments)} comments</span>
                       </div>
-                      {post.isSaved && (
+                      {isFavorite(post.id) && (
                         <Bookmark className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                       )}
                     </div>
@@ -609,11 +595,11 @@ export default function Profile_page() {
                       toggleFavorite(post.id);
                     }}
                     className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-sm"
-                    aria-label={favorites.has(post.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    aria-label={isFavorite(post.id) ? 'Remove from favorites' : 'Add to favorites'}
                   >
                     <Bookmark 
                       className={`w-5 h-5 transition-all duration-200 ${
-                        favorites.has(post.id) 
+                        isFavorite(post.id) 
                           ? 'fill-yellow-400 text-yellow-400' 
                           : 'text-gray-400 hover:text-yellow-400'
                       }`}
@@ -660,7 +646,7 @@ export default function Profile_page() {
                         </span>
                         <span>{formatNumber(post.comments)} comments</span>
                       </div>
-                      {post.isSaved && (
+                      {isFavorite(post.id) && (
                         <Bookmark className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                       )}
                     </div>
@@ -679,11 +665,11 @@ export default function Profile_page() {
                           toggleFavorite(post.id);
                         }}
                         className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-sm"
-                        aria-label={favorites.has(post.id) ? 'Remove from favorites' : 'Add to favorites'}
+                        aria-label={isFavorite(post.id) ? 'Remove from favorites' : 'Add to favorites'}
                       >
                         <Bookmark 
                           className={`w-5 h-5 transition-all duration-200 ${
-                            favorites.has(post.id) 
+                            isFavorite(post.id) 
                               ? 'fill-yellow-400 text-yellow-400' 
                               : 'text-gray-400 hover:text-yellow-400'
                           }`}

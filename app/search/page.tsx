@@ -5,7 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { Search as SearchIcon, Filter, Check, Bookmark, Send, Heart } from "lucide-react";
+import { Search as SearchIcon, Check, Bookmark, Send, Heart } from "lucide-react";
+import { useFavorites } from '../contexts/FavoritesContext';
 
 type SearchResult = {
   id: string;
@@ -24,19 +25,7 @@ export default function Search() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('Most Popular');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
-
-  const toggleFavorite = (resultId: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(resultId)) {
-        newFavorites.delete(resultId);
-      } else {
-        newFavorites.add(resultId);
-      }
-      return newFavorites;
-    });
-  };
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   const searchResults: SearchResult[] = [
     {
@@ -188,21 +177,7 @@ export default function Search() {
   const filterOptions = ['Most Popular', 'Most Recent', 'Most Liked', 'Most Shared'];
   const categoryOptions = ['All', 'Food', 'Movies', 'Books', 'Art', 'Travel', 'Productivity', 'Nature', 'Fitness', 'Crafts'];
 
-  const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) return 'Updated today';
-    if (diffDays === 2) return 'Updated yesterday';
-    if (diffDays <= 7) return `Updated ${diffDays - 1} days ago`;
-    return `Updated ${diffDays - 1} days ago`;
-  };
 
-  const handleResultClick = (resultId: string) => {
-    console.log(`Search result clicked: ${resultId}`);
-  };
 
   const handleShare = (resultId: string, resultTitle: string) => {
     console.log(`Sharing: ${resultTitle} (ID: ${resultId})`);
@@ -302,11 +277,11 @@ export default function Search() {
                       toggleFavorite(result.id);
                     }}
                     className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-200 hover:scale-110 shadow-sm"
-                    aria-label={favorites.has(result.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    aria-label={isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'}
                   >
                     <Bookmark 
                       className={`w-5 h-5 transition-all duration-200 ${
-                        favorites.has(result.id) 
+                        isFavorite(result.id) 
                           ? 'fill-yellow-400 text-yellow-400' 
                           : 'text-gray-400 hover:text-yellow-400'
                       }`}

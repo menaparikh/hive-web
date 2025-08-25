@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { MessageCircle, Search, MoreVertical, Check, CheckCheck, Send, Paperclip, Smile, ArrowLeft, Plus, X } from "lucide-react";
+import { MessageCircle, Search, MoreVertical, Send, Paperclip, Smile, ArrowLeft, X } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -229,9 +229,7 @@ export default function Messages() {
     setSelectedChat(null);
   };
 
-  const getTimeAgo = (timestamp: string) => {
-    return timestamp;
-  };
+
 
   const filteredMessages = messages.filter(message => {
     const matchesSearch = message.username.toLowerCase().includes(searchQuery.toLowerCase()) ||

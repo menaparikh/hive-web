@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { ArrowLeft, Camera, Save, X } from "lucide-react";
+import { ArrowLeft, Camera, Save } from "lucide-react";
 import Link from 'next/link';
 
 export default function ProfileEditor() {

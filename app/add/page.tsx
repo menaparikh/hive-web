@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { ArrowLeft, Save, Users, Lock, User, Globe, MessageCircle, MessageSquare } from "lucide-react";
+import { ArrowLeft, Save, Users, Lock, Globe, MessageCircle, MessageSquare } from "lucide-react";
 import Link from 'next/link';
 
 export default function AddList() {

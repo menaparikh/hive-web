@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from 'react';
-import { X, Plus, Type, Image as ImageIcon, Palette, Sparkles, Music, Sticker, Text, Save, Camera } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, Plus, Type, Palette, Sticker, Camera } from 'lucide-react';
 import Image from 'next/image';
 
 type StoryContent = {
@@ -64,7 +64,14 @@ export default function StoryCreator({ isOpen, onClose, onSave, username, avatar
   const [selectedFontSize, setSelectedFontSize] = useState(24);
   const [selectedContent, setSelectedContent] = useState<string | null>(null);
   const [showListSelector, setShowListSelector] = useState(false);
-  const [selectedList, setSelectedList] = useState<any>(null);
+  const [selectedList, setSelectedList] = useState<{
+    id: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+    createdBy: string;
+    category: string;
+  } | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   // Mock lists data for reposting
@@ -182,7 +189,14 @@ export default function StoryCreator({ isOpen, onClose, onSave, username, avatar
     setContents(prev => [...prev, newContent]);
   };
 
-  const addListRepost = (list: any) => {
+  const addListRepost = (list: {
+    id: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+    createdBy: string;
+    category: string;
+  }) => {
     const newContent: StoryContent = {
       id: Date.now().toString(),
       type: 'repost',

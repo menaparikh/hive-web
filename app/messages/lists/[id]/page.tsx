@@ -3,7 +3,7 @@
 import React, { useState, use } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { ArrowLeft, Heart, Share2, MoreVertical, Bookmark, Star, Eye, MessageCircle, Calendar, User, Plus, Filter, SortAsc, Download, Edit3, CheckCircle, Clock, TrendingUp, Users, FileText, ExternalLink, Copy, Flag, Settings, BookOpen, CheckSquare, Square } from "lucide-react";
+import { ArrowLeft, Heart, Share2, MoreVertical, Bookmark, Star, Eye, MessageCircle, Calendar, Plus, Filter, SortAsc, Download, Edit3, CheckCircle, Clock, TrendingUp, Users, FileText, ExternalLink, Square, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -52,12 +52,16 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
   const [filterYear, setFilterYear] = useState('');
   const [showNotes, setShowNotes] = useState<{ [key: string]: boolean }>({});
   const [itemNotes, setItemNotes] = useState<{ [key: string]: string }>({});
-  const [showRelatedLists, setShowRelatedLists] = useState(true);
+
   const [readingProgress, setReadingProgress] = useState<{ [key: string]: 'not-started' | 'in-progress' | 'completed' }>({});
   const [userRatings, setUserRatings] = useState<{ [key: string]: number }>({});
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [shareMessage, setShareMessage] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
+  
+  // Navigation state for stories/items
+  const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const [showItemViewer, setShowItemViewer] = useState(false);
 
   // Get list data based on ID
   const getListData = (id: string) => {
@@ -536,6 +540,59 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
     }
   };
 
+  // Navigation functions for stories/items
+  const handlePreviousItem = () => {
+    const filteredItems = getFilteredAndSortedItems();
+    console.log('Previous clicked - current index:', currentItemIndex, 'total items:', filteredItems.length);
+    if (currentItemIndex > 0) {
+      const newIndex = currentItemIndex - 1;
+      console.log('Setting new index to:', newIndex);
+      setCurrentItemIndex(newIndex);
+      console.log('State update triggered');
+    } else {
+      console.log('Cannot go previous - already at first item');
+    }
+  };
+
+  const handleNextItem = () => {
+    const filteredItems = getFilteredAndSortedItems();
+    console.log('Next clicked - current index:', currentItemIndex, 'total items:', filteredItems.length);
+    if (currentItemIndex < filteredItems.length - 1) {
+      const newIndex = currentItemIndex + 1;
+      console.log('Setting new index to:', newIndex);
+      setCurrentItemIndex(newIndex);
+      console.log('State update triggered');
+    } else {
+      console.log('Cannot go next - already at last item');
+    }
+  };
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
+      handlePreviousItem();
+    } else if (e.key === 'ArrowRight') {
+      handleNextItem();
+    }
+  };
+
+  // Add keyboard event listener
+  React.useEffect(() => {
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [currentItemIndex]);
+
+  // Monitor currentItemIndex changes
+  React.useEffect(() => {
+    console.log('currentItemIndex changed to:', currentItemIndex);
+  }, [currentItemIndex]);
+
+  const openItemViewer = (index: number) => {
+    console.log('Opening item viewer for index:', index);
+    setCurrentItemIndex(index);
+    setShowItemViewer(true);
+    console.log('Modal should now be visible');
+  };
+
   const getFilteredAndSortedItems = () => {
     let filtered = [...listItems];
     
@@ -793,7 +850,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                     {/* Creator and Date */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <User className="w-5 h-5 text-gray-500" />
+                        <Users className="w-5 h-5 text-gray-500" />
                         <Link href="/profile/john-smith" className="text-sm text-purple-600 hover:text-purple-800 font-medium transition-colors">
                           {listData.createdBy}
                         </Link>
@@ -1132,8 +1189,13 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                 </Card>
               )}
               
-              {getFilteredAndSortedItems().map((item) => (
-                <Card key={item.id} className="overflow-hidden rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300" style={{ backgroundColor: '#FFFCF9' }}>
+              {getFilteredAndSortedItems().map((item, index) => (
+                <Card 
+                  key={item.id} 
+                  className="overflow-hidden rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer" 
+                  style={{ backgroundColor: '#FFFCF9' }}
+                  onClick={() => openItemViewer(index)}
+                >
                   <CardContent className="p-6">
                     <div className="flex gap-4">
                       {/* Item Image */}
@@ -1190,7 +1252,10 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                           <div className="flex items-center space-x-2">
                             {/* Notes Button */}
                             <button
-                              onClick={() => setShowNotes(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowNotes(prev => ({ ...prev, [item.id]: !prev[item.id] }));
+                              }}
                               className="p-2 text-gray-500 hover:text-purple-600 transition-colors"
                               title="Add Notes"
                             >
@@ -1199,7 +1264,10 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                             
                             {/* External Link */}
                             <button
-                              onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(item.title)}`, '_blank')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`https://www.google.com/search?q=${encodeURIComponent(item.title)}`, '_blank');
+                              }}
                               className="p-2 text-gray-500 hover:text-blue-600 transition-colors"
                               title="Search Online"
                             >
@@ -1210,7 +1278,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                         
                         {/* Notes Section */}
                         {showNotes[item.id] && (
-                          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                          <div className="mt-4 p-3 bg-gray-50 rounded-lg" onClick={(e) => e.stopPropagation()}>
                             <textarea
                               value={itemNotes[item.id] || ''}
                               onChange={(e) => setItemNotes(prev => ({ ...prev, [item.id]: e.target.value }))}
@@ -1241,7 +1309,10 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                             <div className="flex items-start justify-between">
                               <p className="text-sm text-purple-800 italic">"{itemNotes[item.id]}"</p>
                               <button
-                                onClick={() => setShowNotes(prev => ({ ...prev, [item.id]: true }))}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowNotes(prev => ({ ...prev, [item.id]: true }));
+                                }}
                                 className="ml-2 p-1 text-purple-600 hover:text-purple-800 transition-colors"
                               >
                                 <Edit3 className="w-3 h-3" />
@@ -1345,6 +1416,207 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
               >
                 Share
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Item Viewer Modal */}
+      {showItemViewer && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                      {/* Debug Info */}
+            <div className="absolute top-20 left-4 z-60 bg-white p-2 rounded text-xs">
+              Modal Open | Index: {currentItemIndex} | Total: {getFilteredAndSortedItems().length}
+            </div>
+            
+            {/* Arrow Button Indicators */}
+            <div className="absolute top-40 left-4 z-60 bg-yellow-400 p-2 rounded text-xs font-bold">
+              ← BUTTON HERE (Index: {currentItemIndex})
+            </div>
+            <div className="absolute top-40 right-4 z-60 bg-yellow-400 p-2 rounded text-xs font-bold">
+              BUTTON HERE → (Total: {getFilteredAndSortedItems().length})
+            </div>
+          <div className="relative w-full max-w-4xl h-full max-h-[80vh] bg-white rounded-xl overflow-hidden shadow-2xl">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowItemViewer(false)}
+              className="absolute top-4 right-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            {/* Test Button */}
+            <button
+              onClick={() => alert('Modal is working! Current index: ' + currentItemIndex)}
+              className="absolute top-4 left-4 z-50 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Test Button
+            </button>
+            
+            {/* Navigation Test Buttons */}
+            <button
+              onClick={() => {
+                console.log('Test Previous clicked');
+                handlePreviousItem();
+              }}
+              className="absolute top-16 left-4 z-50 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Test Previous
+            </button>
+            
+            <button
+              onClick={() => {
+                console.log('Test Next clicked');
+                handleNextItem();
+              }}
+              className="absolute top-28 left-4 z-50 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            >
+              Test Next
+            </button>
+
+            {/* Navigation Arrows - PROPER BUTTONS */}
+            <button
+              onClick={handlePreviousItem}
+              disabled={currentItemIndex === 0}
+              className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg border-2 ${
+                currentItemIndex === 0
+                  ? 'bg-gray-400/50 text-gray-300 border-gray-300/20 cursor-not-allowed'
+                  : 'bg-black/70 hover:bg-black/90 text-white border-white/30 hover:border-white/50 hover:scale-105 cursor-pointer'
+              }`}
+              style={{ 
+                pointerEvents: 'auto',
+                zIndex: 1000
+              }}
+              type="button"
+              aria-label="Previous item"
+            >
+              <ChevronLeft className="w-7 h-7" />
+            </button>
+            
+            <button
+              onClick={handleNextItem}
+              disabled={currentItemIndex === getFilteredAndSortedItems().length - 1}
+              className={`absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg border-2 ${
+                currentItemIndex === getFilteredAndSortedItems().length - 1
+                  ? 'bg-gray-400/50 text-gray-300 border-gray-300/20 cursor-not-allowed'
+                  : 'bg-black/70 hover:bg-black/90 text-white border-white/30 hover:border-white/50 hover:scale-105 cursor-pointer'
+              }`}
+              style={{ 
+                pointerEvents: 'auto',
+                zIndex: 1000
+              }}
+              type="button"
+              aria-label="Next item"
+            >
+              <ChevronRight className="w-7 h-7" />
+            </button>
+
+            {/* Item Content */}
+            <div className="w-full h-full flex items-center justify-center p-8">
+              {(() => {
+                const currentItem = getFilteredAndSortedItems()[currentItemIndex];
+                if (!currentItem) return null;
+                
+                console.log('Rendering item:', currentItem.title, 'at index:', currentItemIndex);
+                
+                return (
+                  <div className="w-full max-w-2xl">
+                    {/* Item Image */}
+                    <div className="relative w-full h-64 mb-6 rounded-lg overflow-hidden shadow-lg">
+                      <Image
+                        src={currentItem.imageUrl || '/horror.png'}
+                        alt={currentItem.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    
+                    {/* Item Details */}
+                    <div className="text-center">
+                      <h2 className="text-3xl font-bold text-gray-900 mb-4">{currentItem.title}</h2>
+                      <p className="text-lg text-gray-600 mb-6">{currentItem.description}</p>
+                      
+                      <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 mb-6">
+                        <span>{currentItem.author ? `By ${currentItem.author}` : currentItem.director ? `Directed by ${currentItem.director}` : `By ${listData.createdBy}`}</span>
+                        <span>•</span>
+                        <span>{currentItem.year}</span>
+                        <span>•</span>
+                        <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full">{currentItem.genre}</span>
+                      </div>
+                      
+                      <div className="flex items-center justify-center space-x-2 mb-6">
+                        {renderStars(currentItem.rating)}
+                        <span className="text-lg text-gray-500">({currentItem.rating})</span>
+                      </div>
+                      
+                      {/* Progress Indicator */}
+                      <div className="flex items-center justify-center space-x-4 mb-6">
+                        <span className="text-sm text-gray-500">
+                          {currentItemIndex + 1} of {getFilteredAndSortedItems().length}
+                        </span>
+                        <div className="flex space-x-1">
+                          {getFilteredAndSortedItems().map((_, index) => (
+                            <div
+                              key={index}
+                              className={`w-2 h-2 rounded-full transition-colors ${
+                                index === currentItemIndex ? 'bg-purple-600' : 'bg-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Interactive Controls */}
+                      <div className="flex items-center justify-center space-x-4 mb-4">
+                        <button
+                          onClick={() => handleItemRating(currentItem.id, (userRatings[currentItem.id] || 0) === 5 ? 0 : (userRatings[currentItem.id] || 0) + 1)}
+                          className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                          <Star className="w-4 h-4" />
+                          <span>Rate</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(currentItem.title)}`, '_blank')}
+                          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          <span>Search Online</span>
+                        </button>
+                      </div>
+                      
+                      {/* Additional Navigation Controls */}
+                      <div className="flex items-center justify-center space-x-4">
+                        <button
+                          onClick={handlePreviousItem}
+                          disabled={currentItemIndex === 0}
+                          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                            currentItemIndex === 0 
+                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                              : 'bg-green-600 text-white hover:bg-green-700'
+                          }`}
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          <span>Previous</span>
+                        </button>
+                        
+                        <button
+                          onClick={handleNextItem}
+                          disabled={currentItemIndex === getFilteredAndSortedItems().length - 1}
+                          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                            currentItemIndex === getFilteredAndSortedItems().length - 1 
+                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                              : 'bg-green-600 text-white hover:bg-green-700'
+                          }`}
+                        >
+                          <span>Next</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

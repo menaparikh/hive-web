@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Heart, MessageCircle, Send, ChevronLeft, ChevronRight, Pause, MoreHorizontal } from 'lucide-react';
+import { X, Heart, Send, ChevronLeft, ChevronRight, Pause, Play, MoreHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -62,58 +62,18 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
   const [isPaused, setIsPaused] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [likedStories, setLikedStories] = useState<Set<string>>(new Set());
+  const [progressWidth, setProgressWidth] = useState(0);
   const progressRef = useRef<HTMLDivElement>(null);
-  const autoAdvanceRef = useRef<NodeJS.Timeout>();
+  const progressIntervalRef = useRef<NodeJS.Timeout>();
+  const hasInitializedRef = useRef(false);
+  const onCloseRef = useRef(onClose);
+  const storyStartTimeRef = useRef<number>(Date.now());
+  const mentionedStoryRef = useRef<string>('');
 
   // Mock stories data for each creator - using new format
   const getCreatorStories = (username: string): Story[] => {
     const storiesMap: { [key: string]: Story[] } = {
-      'menaparikh': [
-        {
-          id: '1',
-          username: 'menaparikh',
-          avatar: '/actualmena.png',
-          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-          expiresAt: new Date(Date.now() + 22 * 60 * 60 * 1000), // 22 hours left
-          contents: [
-            {
-              id: '1',
-              type: 'list',
-              content: '',
-              x: 50,
-              y: 50,
-              fontSize: 24,
-              color: '#FFFFFF',
-              fontFamily: 'Inter',
-              rotation: 0,
-              scale: 1,
-              listData: {
-                id: '1',
-                title: 'Horror Books for Teens',
-                description: 'Spooky reads perfect for young adults who love a good scare',
-                imageUrl: '/horror.png',
-                createdBy: 'menaparikh',
-                category: 'Books'
-              }
-            },
-            {
-              id: '2',
-              type: 'text',
-              content: 'My latest horror list! 🎃',
-              x: 50,
-              y: 80,
-              fontSize: 18,
-              color: '#FFD166',
-              fontFamily: 'Inter',
-              rotation: 0,
-              scale: 1
-            }
-          ],
-          background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)',
-          isActive: true,
-          type: 'list-repost'
-        }
-      ],
+      'menaparikh': [],
       'lumen.ly': [
         {
           id: '1',
@@ -158,6 +118,42 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
           background: 'linear-gradient(45deg, #06D6A0, #118AB2, #073B4C, #26547C)',
           isActive: true,
           type: 'list-repost'
+        },
+        {
+          id: '2',
+          username: 'lumen.ly',
+          avatar: '/lumen.png',
+          createdAt: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
+          expiresAt: new Date(Date.now() + 23.25 * 60 * 60 * 1000), // 23.25 hours left
+          contents: [
+            {
+              id: '1',
+              type: 'text',
+              content: 'Just watched the funniest movie! 😂',
+              x: 50,
+              y: 50,
+              fontSize: 24,
+              color: '#FFFFFF',
+              fontFamily: 'Inter',
+              rotation: 0,
+              scale: 1
+            },
+            {
+              id: '2',
+              type: 'text',
+              content: 'Can\'t stop laughing! 🤣',
+              x: 50,
+              y: 80,
+              fontSize: 18,
+              color: '#FFD166',
+              fontFamily: 'Inter',
+              rotation: 0,
+              scale: 1
+            }
+          ],
+          background: 'linear-gradient(45deg, #FF6B9D, #C44569, #8B5CF6, #F8B500)',
+          isActive: true,
+          type: 'custom'
         }
       ],
       'violet.noir': [
@@ -486,27 +482,56 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
   const currentStory = stories[currentStoryIndex];
 
   useEffect(() => {
-    if (isOpen && !isPaused && stories.length > 1) {
-      autoAdvanceRef.current = setTimeout(() => {
-        if (currentStoryIndex < stories.length - 1) {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  // Auto-advance and progress tracking
+  useEffect(() => {
+    if (isOpen && !isPaused) {
+      // Reset progress and start time when story changes
+      setProgressWidth(0);
+      storyStartTimeRef.current = Date.now();
+      
+      // Start progress animation
+      progressIntervalRef.current = setInterval(() => {
+        const elapsed = Date.now() - storyStartTimeRef.current;
+        const progress = Math.min((elapsed / 5000) * 100, 100); // 5 seconds
+        setProgressWidth(progress);
+        
+        if (progress >= 100) {
+          // Auto-advance to next story using the same logic as handleNext
+          if (allCreators && currentCreatorIndex < allCreators.length - 1) {
+            // Move to next creator
+            setCurrentCreatorIndex(prev => prev + 1);
+            setCurrentStoryIndex(0); // Start at first story of next creator
+          } else if (currentStoryIndex < stories.length - 1) {
+            // Move to next story within same creator
           setCurrentStoryIndex(prev => prev + 1);
         } else {
-          onClose();
+            // Stop auto-advancing at the last story, don't close
+            // User can manually navigate or close
         }
-      }, 5000); // 5 seconds per story
+        }
+      }, 50); // Update every 50ms for smooth animation
 
       return () => {
-        if (autoAdvanceRef.current) {
-          clearTimeout(autoAdvanceRef.current);
+        if (progressIntervalRef.current) {
+          clearInterval(progressIntervalRef.current);
         }
       };
+    } else {
+      // Pause progress animation
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
     }
-  }, [isOpen, isPaused, currentStoryIndex, stories.length, onClose]);
+    }
+  }, [isOpen, isPaused, currentStoryIndex, currentCreatorIndex]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !hasInitializedRef.current) {
       setCurrentStoryIndex(initialStoryIndex);
       setIsPaused(false);
+      setProgressWidth(0);
       
       // Set current creator index if allCreators is provided
       if (allCreators) {
@@ -516,14 +541,25 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
         }
       }
       
-      // Check for mentions when story opens
-      if (onMention && currentStory) {
+      hasInitializedRef.current = true;
+    } else if (!isOpen) {
+      hasInitializedRef.current = false;
+      setProgressWidth(0);
+    }
+  }, [isOpen]);
+
+  // Separate useEffect for mention checking
+  useEffect(() => {
+    if (isOpen && onMention && currentStory) {
+      // Only trigger mention once per story
+      if (mentionedStoryRef.current !== currentStory.id) {
         const repostContent = currentStory.contents.find(content => 
           content.type === 'repost' && 
           content.repostData?.originalCreator === 'menaparikh'
         );
         
         if (repostContent) {
+          mentionedStoryRef.current = currentStory.id;
           onMention(
             currentStory.username,
             currentStory.avatar,
@@ -532,7 +568,7 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
         }
       }
     }
-  }, [isOpen, initialStoryIndex, currentStory, onMention, allCreators, creatorUsername]);
+  }, [isOpen, onMention, currentStory]);
 
   const handleLike = (storyId: string) => {
     setLikedStories(prev => {
@@ -556,28 +592,45 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
 
 
   const handleNext = () => {
-    if (currentStoryIndex < stories.length - 1) {
-      setCurrentStoryIndex(prev => prev + 1);
-    } else {
-      // Move to next creator if available
+    console.log('handleNext called - currentCreatorIndex:', currentCreatorIndex, 'allCreators.length:', allCreators?.length);
+    
+    // Reset progress when manually navigating
+    setProgressWidth(0);
+    
+    // Always try to move to next creator first
       if (allCreators && currentCreatorIndex < allCreators.length - 1) {
+      console.log('Moving to next creator');
         setCurrentCreatorIndex(prev => prev + 1);
-        setCurrentStoryIndex(0);
+      setCurrentStoryIndex(0); // Start at first story of next creator
       } else {
+      // If no more creators, try to move to next story within current creator
+      if (currentStoryIndex < stories.length - 1) {
+        console.log('Moving to next story within same creator');
+        setCurrentStoryIndex(prev => prev + 1);
+      } else {
+        console.log('Closing story viewer - reached end');
         onClose();
       }
     }
   };
 
   const handlePrevious = () => {
-    if (currentStoryIndex > 0) {
-      setCurrentStoryIndex(prev => prev - 1);
-    } else {
-      // Move to previous creator if available
+    console.log('handlePrevious called - currentCreatorIndex:', currentCreatorIndex, 'allCreators.length:', allCreators?.length);
+    
+    // Reset progress when manually navigating
+    setProgressWidth(0);
+    
+    // Always try to move to previous creator first
       if (allCreators && currentCreatorIndex > 0) {
+      console.log('Moving to previous creator');
         setCurrentCreatorIndex(prev => prev - 1);
         const prevCreatorStories = getCreatorStories(allCreators[currentCreatorIndex - 1]);
-        setCurrentStoryIndex(prevCreatorStories.length - 1);
+      setCurrentStoryIndex(prevCreatorStories.length - 1); // Start at last story of previous creator
+    } else {
+      // If no more creators, try to move to previous story within current creator
+      if (currentStoryIndex > 0) {
+        console.log('Moving to previous story within same creator');
+        setCurrentStoryIndex(prev => prev - 1);
       }
     }
   };
@@ -601,11 +654,146 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
 
   if (!isOpen || !currentStory) return null;
 
-  const progressPercentage = ((currentStoryIndex + 1) / stories.length) * 100;
-
   return (
     <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
-      {/* Phone-sized container */}
+      {/* Instagram-style story viewer with adjacent previews */}
+      <div className="relative w-full max-w-4xl h-full max-h-[600px] flex items-center justify-center">
+        
+        {/* Previous Story Preview (Left) */}
+        {currentCreatorIndex > 0 && getCreatorStories(allCreators[currentCreatorIndex - 1]).length > 0 && (
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30">
+            <div className="w-32 h-48 bg-white rounded-lg shadow-lg overflow-hidden opacity-50 hover:opacity-90 transition-all duration-300 cursor-pointer transform hover:scale-105" onClick={handlePrevious}>
+              <div className="w-full h-8 bg-gradient-to-b from-black/30 to-transparent flex items-center px-2">
+                <div className="w-4 h-4 rounded-full overflow-hidden border border-white">
+                  <Image
+                    src={getCreatorStories(allCreators[currentCreatorIndex - 1])[0]?.avatar || '/actualmena.png'}
+                    alt="Previous story"
+                    width={16}
+                    height={16}
+                    className="object-cover"
+                  />
+                </div>
+                <span className="text-white text-xs ml-1 truncate font-medium">
+                  {allCreators[currentCreatorIndex - 1]}
+                </span>
+              </div>
+              <div 
+                className="w-full h-40 relative"
+                style={{ background: getCreatorStories(allCreators[currentCreatorIndex - 1])[0]?.background || 'linear-gradient(45deg, #FF6B9D, #C44569)' }}
+              >
+                {/* Story content preview */}
+                <div className="absolute inset-0 flex items-center justify-center p-2">
+                  {(() => {
+                    const prevStory = getCreatorStories(allCreators[currentCreatorIndex - 1])[0];
+                    const contents = prevStory?.contents || [];
+                    
+                    // Find the most meaningful content to display
+                    const listContent = contents.find(c => c.type === 'list' && c.listData);
+                    const repostContent = contents.find(c => c.type === 'repost' && c.repostData);
+                    const textContent = contents.find(c => c.type === 'text' && c.content);
+                    
+                    if (listContent?.listData) {
+                      return (
+                        <div className="text-white text-xs text-center">
+                          <div className="font-semibold mb-1 leading-tight">{listContent.listData.title}</div>
+                          <div className="opacity-80 leading-tight">{listContent.listData.description.substring(0, 40)}...</div>
+                        </div>
+                      );
+                    } else if (repostContent?.repostData) {
+                      return (
+                        <div className="text-white text-xs text-center">
+                          <div className="font-semibold mb-1 leading-tight">📋 {repostContent.repostData.title}</div>
+                          <div className="opacity-80 leading-tight">Reposted from @{repostContent.repostData.originalCreator}</div>
+                        </div>
+                      );
+                    } else if (textContent?.content) {
+                      return (
+                        <div className="text-white text-xs text-center opacity-90 leading-tight">
+                          {textContent.content.length > 60 
+                            ? `${textContent.content.substring(0, 60)}...` 
+                            : textContent.content}
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div className="text-white text-xs opacity-70">Story</div>
+                      );
+                    }
+                  })()}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Next Story Preview (Right) */}
+        {currentCreatorIndex < (allCreators?.length || 0) - 1 && getCreatorStories(allCreators[currentCreatorIndex + 1]).length > 0 && (
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30">
+            <div className="w-32 h-48 bg-white rounded-lg shadow-lg overflow-hidden opacity-50 hover:opacity-90 transition-all duration-300 cursor-pointer transform hover:scale-105" onClick={handleNext}>
+              <div className="w-full h-8 bg-gradient-to-b from-black/30 to-transparent flex items-center px-2">
+                <div className="w-4 h-4 rounded-full overflow-hidden border border-white">
+                  <Image
+                    src={getCreatorStories(allCreators[currentCreatorIndex + 1])[0]?.avatar || '/actualmena.png'}
+                    alt="Next story"
+                    width={16}
+                    height={16}
+                    className="object-cover"
+                  />
+                </div>
+                <span className="text-white text-xs ml-1 truncate font-medium">
+                  {allCreators[currentCreatorIndex + 1]}
+                </span>
+              </div>
+              <div 
+                className="w-full h-40 relative"
+                style={{ background: getCreatorStories(allCreators[currentCreatorIndex + 1])[0]?.background || 'linear-gradient(45deg, #FF6B9D, #C44569)' }}
+              >
+                {/* Story content preview */}
+                <div className="absolute inset-0 flex items-center justify-center p-2">
+                  {(() => {
+                    const nextStory = getCreatorStories(allCreators[currentCreatorIndex + 1])[0];
+                    const contents = nextStory?.contents || [];
+                    
+                    // Find the most meaningful content to display
+                    const listContent = contents.find(c => c.type === 'list' && c.listData);
+                    const repostContent = contents.find(c => c.type === 'repost' && c.repostData);
+                    const textContent = contents.find(c => c.type === 'text' && c.content);
+                    
+                    if (listContent?.listData) {
+                      return (
+                        <div className="text-white text-xs text-center">
+                          <div className="font-semibold mb-1 leading-tight">{listContent.listData.title}</div>
+                          <div className="opacity-80 leading-tight">{listContent.listData.description.substring(0, 40)}...</div>
+                        </div>
+                      );
+                    } else if (repostContent?.repostData) {
+                      return (
+                        <div className="text-white text-xs text-center">
+                          <div className="font-semibold mb-1 leading-tight">📋 {repostContent.repostData.title}</div>
+                          <div className="opacity-80 leading-tight">Reposted from @{repostContent.repostData.originalCreator}</div>
+                        </div>
+                      );
+                    } else if (textContent?.content) {
+                      return (
+                        <div className="text-white text-xs text-center opacity-90 leading-tight">
+                          {textContent.content.length > 60 
+                            ? `${textContent.content.substring(0, 60)}...` 
+                            : textContent.content}
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div className="text-white text-xs opacity-70">Story</div>
+                      );
+                    }
+                  })()}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Story Container */}
       <div className="relative w-full max-w-sm h-full max-h-[600px] bg-white rounded-lg overflow-hidden shadow-2xl">
         {/* Clickable close area in top-right corner */}
         <button
@@ -613,12 +801,36 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
           className="absolute top-0 right-0 w-20 h-20 z-40"
           aria-label="Close story"
         />
-        {/* Progress Bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gray-800">
+        {/* Multi-Story Progress Indicator */}
+        <div className="absolute top-0 left-0 right-0 h-1 z-50 flex gap-1 p-1">
+          {stories.map((_, index) => (
+            <div key={index} className="flex-1 bg-gray-800/30 rounded-full overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-50 ease-linear ${
+                  index < currentStoryIndex 
+                    ? 'bg-white' // Completed stories
+                    : index === currentStoryIndex 
+                    ? 'bg-white' // Current story (will be controlled by progressWidth)
+                    : 'bg-transparent' // Future stories
+                }`}
+                style={{ 
+                  width: index === currentStoryIndex 
+                    ? `${progressWidth}%` 
+                    : index < currentStoryIndex 
+                    ? '100%' 
+                    : '0%'
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        
+        {/* Main Progress Bar */}
+        <div className="absolute top-3 left-0 right-0 h-2 bg-gray-800/50 z-50">
           <div 
             ref={progressRef}
-            className="h-full bg-white transition-all duration-300 ease-linear"
-            style={{ width: `${progressPercentage}%` }}
+            className="h-full bg-white transition-all duration-50 ease-linear rounded-r-full"
+            style={{ width: `${progressWidth}%` }}
           />
         </div>
 
@@ -647,7 +859,7 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
               onClick={() => setIsPaused(!isPaused)}
               className="p-2 text-white hover:bg-white/10 rounded-full transition-colors"
             >
-              <Pause className="w-5 h-5" />
+              {isPaused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
             </button>
             <button className="p-2 text-white hover:bg-white/10 rounded-full transition-colors">
               <MoreHorizontal className="w-5 h-5" />
@@ -736,7 +948,8 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-gray-900 text-sm truncate">{content.repostData.title}</h4>
-                        <p className="text-xs text-gray-500">by @{content.repostData.originalCreator}</p>
+                        {/* Removed "by @username" line - you can uncomment below if you want to show it */}
+                        {/* <p className="text-xs text-gray-500">by @{content.repostData.originalCreator}</p> */}
                       </div>
                     </div>
                     <p className="text-xs text-gray-600 line-clamp-2">{content.repostData.description}</p>
@@ -758,22 +971,44 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
           </div>
         </div>
 
-        {/* Navigation Arrows */}
-        {(currentStoryIndex > 0 || (allCreators && currentCreatorIndex > 0)) && (
+        {/* Navigation Arrows - Only show when there's a previous/next story */}
+        {(currentStoryIndex > 0 || (allCreators && currentCreatorIndex > 0 && getCreatorStories(allCreators[currentCreatorIndex - 1]).length > 0)) && (
           <button
-            onClick={handlePrevious}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Story Previous clicked!');
+              handlePrevious();
+            }}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg border-2 bg-black/70 hover:bg-black/90 text-white border-white/30 hover:border-white/50 hover:scale-105 cursor-pointer"
+            style={{ 
+              pointerEvents: 'auto',
+              zIndex: 1000
+            }}
+            type="button"
+            aria-label="Previous story"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-7 h-7" />
           </button>
         )}
         
         {(currentStoryIndex < stories.length - 1 || (allCreators && currentCreatorIndex < allCreators.length - 1)) && (
           <button
-            onClick={handleNext}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Story Next clicked!');
+              handleNext();
+            }}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg border-2 bg-black/70 hover:bg-black/90 text-white border-white/30 hover:border-white/50 hover:scale-105 cursor-pointer"
+            style={{ 
+              pointerEvents: 'auto',
+              zIndex: 1000
+            }}
+            type="button"
+            aria-label="Next story"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-7 h-7" />
           </button>
         )}
 
@@ -808,15 +1043,9 @@ export default function StoryViewer({ isOpen, onClose, initialStoryIndex, creato
             </button>
           </div>
           
-          <div className="flex items-center justify-between mt-2 text-white/70 text-sm">
-            <span>{currentStory.likes} likes</span>
-            <span>{currentStory.replies} replies</span>
-          </div>
+
         </div>
 
-        {/* Story Counter */}
-        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 text-white/70 text-sm">
-          {currentStoryIndex + 1} / {stories.length}
         </div>
       </div>
     </div>

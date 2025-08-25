@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { ArrowLeft, Bell, Shield, Eye, MessageCircle, Globe, Moon, Sun, Palette, Download, Trash2, LogOut } from "lucide-react";
+import { ArrowLeft, Bell, Shield, MessageCircle, Globe, Moon, Sun, Palette, Download, Trash2, LogOut } from "lucide-react";
 import Link from 'next/link';
 
 export default function Settings() {

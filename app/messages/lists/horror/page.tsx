@@ -19,7 +19,7 @@ type ListItem = {
   imageUrl?: string;
 };
 
-export default function ListDetail({ params }: { params: { id: string } }) {
+export default function ListDetail() {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showMenu, setShowMenu] = useState(false);

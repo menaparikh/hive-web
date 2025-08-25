@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { ArrowLeft, User, Calendar, MapPin, Link as LinkIcon, UserPlus, UserCheck } from "lucide-react";
+import { ArrowLeft, Link as LinkIcon, UserPlus, UserCheck } from "lucide-react";
 import Link from 'next/link';
 import Image from 'next/image';
 
