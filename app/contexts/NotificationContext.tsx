@@ -52,23 +52,14 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     { likes: 0, follows: 0, comments: 0, total: 0 }
   );
 
-  // Debug logging
-  console.log('NotificationContext - notifications:', notifications);
-  console.log('NotificationContext - notificationCounts:', notificationCounts);
-
   const addNotification = (notification: Omit<Notification, 'id' | 'timeAgo' | 'isRead'>) => {
-    console.log('Adding notification:', notification);
     const newNotification: Notification = {
       ...notification,
       id: Date.now().toString(),
       timeAgo: 'Just now',
       isRead: false
     };
-    setNotifications(prev => {
-      const updated = [newNotification, ...prev];
-      console.log('Updated notifications:', updated);
-      return updated;
-    });
+    setNotifications(prev => [newNotification, ...prev]);
   };
 
   const markAsRead = (notificationId: string) => {

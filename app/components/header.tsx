@@ -7,9 +7,6 @@ import NotificationPanel from "./notification-panel";
 export default function Header() { 
     const { notificationCounts, toggleNotificationPanel } = useNotifications();
 
-    // Debug logging
-    console.log('Header notificationCounts:', notificationCounts);
-
     return (
         <div>
             {/* Horizontal title bar */}
