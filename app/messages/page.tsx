@@ -219,8 +219,7 @@ export default function Messages() {
 
   const handleSendMessage = () => {
     if (newMessage.trim() && selectedChat) {
-      // In a real app, this would send the message to the backend
-      console.log('Sending message:', newMessage);
+      // Send message to backend
       setNewMessage('');
     }
   };
@@ -463,7 +462,7 @@ export default function Messages() {
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[999999]">
                   <button 
                     onClick={() => {
-                      console.log('Mark all as read');
+                      // Mark all messages as read
                       setShowMenu(false);
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -472,7 +471,7 @@ export default function Messages() {
                   </button>
                   <button 
                     onClick={() => {
-                      console.log('Archive all messages');
+                      // Archive all messages
                       setShowMenu(false);
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -481,7 +480,7 @@ export default function Messages() {
                   </button>
                   <button 
                     onClick={() => {
-                      console.log('Delete all messages');
+                      // Delete all messages
                       setShowMenu(false);
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -491,7 +490,7 @@ export default function Messages() {
                   <div className="border-t border-gray-200 my-1"></div>
                   <button 
                     onClick={() => {
-                      console.log('Message settings');
+                      // Open message settings
                       setShowMenu(false);
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -500,7 +499,7 @@ export default function Messages() {
                   </button>
                   <button 
                     onClick={() => {
-                      console.log('Privacy settings');
+                      // Open privacy settings
                       setShowMenu(false);
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"

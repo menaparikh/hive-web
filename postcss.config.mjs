@@ -5,8 +5,4 @@ const config = {
   },
 };
 
-export default {
-  plugins: {
-    tailwindcss: {},
-  },
-}
+export default config;

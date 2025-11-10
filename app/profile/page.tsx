@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { Send, Settings, Grid, Bookmark, Heart, Repeat } from "lucide-react";
+import { Send, Settings, Grid, Bookmark, Heart, Repeat, Lock, Globe } from "lucide-react";
 import StoryCreator from '@/app/components/story-creator';
 import { useFavorites } from '../contexts/FavoritesContext';
 
@@ -18,6 +18,7 @@ type ProfilePost = {
   isLiked: boolean;
   isSaved: boolean;
   type?: 'individual' | 'collection';
+  isPublic?: boolean;
 };
 
 export default function Profile_page() {
@@ -41,94 +42,103 @@ export default function Profile_page() {
 
   const posts: ProfilePost[] = [
     {
-      id: '1',
-      title: 'Horror Books for Teens',
-      imageUrl: '/horror.png',
+      id: 'm1',
+      title: 'YA Romance Books',
+      imageUrl: '/romancebooks.png',
       likes: 234,
       comments: 18,
       isLiked: true,
       isSaved: false,
-      type: 'individual'
+      type: 'individual',
+      isPublic: true
     },
     {
-      id: '2',
-      title: 'Must Watch Comedy Movies',
-      imageUrl: '/comedy.png',
+      id: 'm2',
+      title: 'YA TV Shows',
+      imageUrl: '/yashows.png',
       likes: 189,
       comments: 12,
       isLiked: false,
       isSaved: true,
-      type: 'individual'
+      type: 'individual',
+      isPublic: true
     },
     {
-      id: '3',
-      title: 'Go-To Salad Recipes',
-      imageUrl: '/salad.png',
+      id: 'm3',
+      title: 'Smoothies to Try',
+      imageUrl: '/smoothies.png',
       likes: 456,
       comments: 34,
       isLiked: true,
       isSaved: true,
-      type: 'individual'
+      type: 'individual',
+      isPublic: false
     },
     {
-      id: '4',
-      title: 'Cooking Techniques',
-      imageUrl: '/cooking.png',
+      id: 'm4',
+      title: 'Skincare for Dry Skin',
+      imageUrl: '/skincare.png',
       likes: 321,
       comments: 25,
       isLiked: false,
       isSaved: false,
-      type: 'individual'
+      type: 'individual',
+      isPublic: false
     },
     {
-      id: '5',
-      title: 'Photography Tips',
-      imageUrl: '/camera.png',
+      id: 'm5',
+      title: 'Dorm Room Essentials',
+      imageUrl: '/dorm.png',
       likes: 567,
       comments: 42,
       isLiked: true,
       isSaved: false,
-      type: 'individual'
+      type: 'individual',
+      isPublic: true
     },
     {
-      id: '6',
-      title: 'Documentary Collection',
-      imageUrl: '/documentary.png',
+      id: 'm6',
+      title: 'Teen Gifts',
+      imageUrl: '/teengifts.png',
       likes: 198,
       comments: 15,
       isLiked: false,
       isSaved: true,
-      type: 'collection'
+      type: 'collection',
+      isPublic: true
     },
     {
-      id: '7',
-      title: 'Travel Destinations',
-      imageUrl: '/destination.png',
+      id: 'm7',
+      title: 'Study Playlist Songs',
+      imageUrl: '/study.png',
       likes: 789,
       comments: 67,
       isLiked: true,
       isSaved: true,
-      type: 'individual'
+      type: 'individual',
+      isPublic: false
     },
     {
-      id: '8',
-      title: 'Healthy Breakfast Ideas',
-      imageUrl: '/healthybreakfast.png',
+      id: 'm8',
+      title: 'College Application Tips',
+      imageUrl: '/collegeapp.png',
       likes: 432,
       comments: 28,
       isLiked: false,
       isSaved: false,
-      type: 'individual'
+      type: 'individual',
+      isPublic: true
     },
     {
-      id: '9',
-      title: 'Productivity Tools',
-      imageUrl: '/productivity.png',
+      id: 'm9',
+      title: 'Weekend Activity Ideas',
+      imageUrl: '/weekend.png',
       likes: 345,
       comments: 22,
       isLiked: true,
       isSaved: false,
-      type: 'collection'
+      type: 'collection',
+      isPublic: true
     }
   ];
 
@@ -182,7 +192,7 @@ export default function Profile_page() {
   };
 
   const handleShare = (postId: string, postTitle: string) => {
-    console.log(`Sharing: ${postTitle} (ID: ${postId})`);
+    // Share functionality
   };
 
   const formatNumber = (num: number) => {
@@ -333,6 +343,15 @@ export default function Profile_page() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {activeTab === 'posts' && posts.map((post) => (
                 <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] rounded-lg border border-gray-100 relative" style={{ backgroundColor: '#FFFCF9' }}>
+                  {/* Privacy Indicator */}
+                  <div className="absolute top-2 left-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm shadow-sm">
+                    {post.isPublic !== false ? (
+                      <Globe className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <Lock className="w-5 h-5 text-gray-600" />
+                    )}
+                  </div>
+                  
                   {/* Favorite Bookmark */}
                   <button
                     onClick={(e) => {
@@ -375,7 +394,8 @@ export default function Profile_page() {
                         alt={`${post.title} cover`}
                         fill
                         className="object-cover"
-                        priority={post.id === '1'}
+                        priority={post.id === 'm1'}
+                        unoptimized
                       />
                       <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
                     </div>
@@ -556,7 +576,8 @@ export default function Profile_page() {
                         alt={`${post.title} cover`}
                         fill
                         className="object-cover"
-                        priority={post.id === '1'}
+                        priority={post.id === 'm1'}
+                        unoptimized
                       />
                       <div className="absolute inset-0 bg-black opacity-0 hover:opacity-20 transition-opacity" />
                     </div>
@@ -740,9 +761,11 @@ export default function Profile_page() {
           isOpen={storyCreator}
           onClose={() => setStoryCreator(false)}
           onSave={(story) => {
-            console.log('Story saved:', story);
+            // Story saved
             setStoryCreator(false);
           }}
+          username={profileData.username}
+          avatar={profileData.avatar}
         />
       )}
     </main>

@@ -15,6 +15,7 @@ type SearchResult = {
   imageUrl: string;
   lastEdited: string;
   category: string;
+  tags?: string[];
   likes: number;
   comments: number;
   isLiked: boolean;
@@ -25,6 +26,9 @@ export default function Search() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('Most Popular');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showTagDropdown, setShowTagDropdown] = useState(false);
+  const [searchInputFocused, setSearchInputFocused] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
 
   const searchResults: SearchResult[] = [
@@ -35,6 +39,7 @@ export default function Search() {
       imageUrl: '/horror.png',
       lastEdited: '2024-01-15',
       category: 'Books',
+      tags: ['horror', 'young-adult', 'books', 'thriller'],
       likes: 234,
       comments: 18,
       isLiked: true,
@@ -47,6 +52,7 @@ export default function Search() {
       imageUrl: '/comedy.png',
       lastEdited: '2024-01-10',
       category: 'Movies',
+      tags: ['comedy', 'movies', 'entertainment'],
       likes: 189,
       comments: 12,
       isLiked: false,
@@ -59,6 +65,7 @@ export default function Search() {
       imageUrl: '/salad.png',
       lastEdited: '2024-01-08',
       category: 'Food',
+      tags: ['food', 'recipes', 'healthy', 'salad'],
       likes: 456,
       comments: 34,
       isLiked: true,
@@ -71,6 +78,7 @@ export default function Search() {
       imageUrl: '/cooking.png',
       lastEdited: '2024-01-05',
       category: 'Food',
+      tags: ['cooking', 'food', 'techniques', 'tips'],
       likes: 321,
       comments: 25,
       isLiked: false,
@@ -83,6 +91,7 @@ export default function Search() {
       imageUrl: '/camera.png',
       lastEdited: '2024-01-03',
       category: 'Art',
+      tags: ['photography', 'art', 'tips', 'creative'],
       likes: 567,
       comments: 42,
       isLiked: true,
@@ -95,6 +104,7 @@ export default function Search() {
       imageUrl: '/documentary.png',
       lastEdited: '2024-01-01',
       category: 'Movies',
+      tags: ['documentary', 'movies', 'educational'],
       likes: 198,
       comments: 15,
       isLiked: false,
@@ -107,6 +117,7 @@ export default function Search() {
       imageUrl: '/destination.png',
       lastEdited: '2023-12-28',
       category: 'Travel',
+      tags: ['travel', 'destinations', 'adventure', 'places'],
       likes: 789,
       comments: 67,
       isLiked: true,
@@ -119,6 +130,7 @@ export default function Search() {
       imageUrl: '/healthybreakfast.png',
       lastEdited: '2023-12-25',
       category: 'Food',
+      tags: ['food', 'breakfast', 'healthy', 'recipes'],
       likes: 432,
       comments: 28,
       isLiked: false,
@@ -131,6 +143,7 @@ export default function Search() {
       imageUrl: '/productivity.png',
       lastEdited: '2023-12-22',
       category: 'Productivity',
+      tags: ['productivity', 'tools', 'apps', 'work'],
       likes: 345,
       comments: 22,
       isLiked: true,
@@ -143,6 +156,7 @@ export default function Search() {
       imageUrl: '/garden.png',
       lastEdited: '2023-12-19',
       category: 'Nature',
+      tags: ['gardening', 'plants', 'nature', 'outdoor'],
       likes: 298,
       comments: 19,
       isLiked: false,
@@ -155,6 +169,7 @@ export default function Search() {
       imageUrl: '/workout.png',
       lastEdited: '2023-12-16',
       category: 'Fitness',
+      tags: ['fitness', 'workout', 'exercise', 'health'],
       likes: 654,
       comments: 45,
       isLiked: true,
@@ -167,6 +182,7 @@ export default function Search() {
       imageUrl: '/diy.png',
       lastEdited: '2023-12-13',
       category: 'Crafts',
+      tags: ['diy', 'crafts', 'projects', 'creative'],
       likes: 187,
       comments: 11,
       isLiked: false,
@@ -174,15 +190,38 @@ export default function Search() {
     }
   ];
 
+  // Get all unique tags from search results
+  const allSearchTags = Array.from(new Set(searchResults.flatMap(result => result.tags || [])));
+
+  // Filter search results
+  const filteredResults = searchResults.filter(result => {
+    const matchesCategory = selectedCategory === 'All' || result.category === selectedCategory;
+    const matchesTags = selectedTags.length === 0 || (result.tags && selectedTags.some(tag => result.tags!.includes(tag)));
+    const matchesSearch = searchQuery === '' || result.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         (result.tags && result.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
+    return matchesCategory && matchesTags && matchesSearch;
+  });
+
   const filterOptions = ['Most Popular', 'Most Recent', 'Most Liked', 'Most Shared'];
   const categoryOptions = ['All', 'Food', 'Movies', 'Books', 'Art', 'Travel', 'Productivity', 'Nature', 'Fitness', 'Crafts'];
 
 
 
   const handleShare = (resultId: string, resultTitle: string) => {
-    console.log(`Sharing: ${resultTitle} (ID: ${resultId})`);
-    // Here you can implement actual sharing functionality
-    // For now, just log the action
+    // Share functionality - can be implemented with Web Share API or custom modal
+    if (navigator.share) {
+      navigator.share({
+        title: resultTitle,
+        text: `Check out this list: ${resultTitle}`,
+        url: `${window.location.origin}/messages/lists/${resultId}`
+      }).catch(() => {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(`${window.location.origin}/messages/lists/${resultId}`);
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${window.location.origin}/messages/lists/${resultId}`);
+    }
   };
 
   const formatNumber = (num: number) => {
@@ -207,24 +246,104 @@ export default function Search() {
         <div className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
           <div className="max-w-6xl mx-auto">
             {/* Search Bar */}
-            <div className="bg-white/70 backdrop-blur-sm shadow-sm rounded-xl border border-gray-100 p-3 sm:p-4 mb-6">
-              <div className="flex items-center space-x-3">
-                <SearchIcon className="h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent border-none outline-none text-gray-900 placeholder-gray-400 text-lg"
-                />
+            <div className="relative mb-6">
+              <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-xl border border-gray-100 dark:border-gray-700 p-3 sm:p-4">
+                <div className="flex items-center space-x-3">
+                  <SearchIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="Search by title or click to browse tags..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => {
+                      setSearchInputFocused(true);
+                      setShowTagDropdown(true);
+                    }}
+                    onBlur={() => {
+                      // Delay hiding dropdown to allow tag clicks
+                      setTimeout(() => {
+                        setSearchInputFocused(false);
+                        setShowTagDropdown(false);
+                      }, 200);
+                    }}
+                    className="flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-lg"
+                  />
+                </div>
               </div>
+              
+              {/* Tag Dropdown */}
+              {showTagDropdown && allSearchTags.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto">
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Browse by Tags</h3>
+                      {selectedTags.length > 0 && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedTags([]);
+                          }}
+                          className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium"
+                        >
+                          Clear all
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {allSearchTags.map((tag) => (
+                        <button
+                          key={tag}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedTags(prev => 
+                              prev.includes(tag) 
+                                ? prev.filter(t => t !== tag)
+                                : [...prev, tag]
+                            );
+                            setSearchQuery('');
+                            setSearchInputFocused(false);
+                            setTimeout(() => setShowTagDropdown(false), 100);
+                          }}
+                          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                            selectedTags.includes(tag)
+                              ? 'bg-purple-500 text-white shadow-sm'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-700 dark:hover:text-purple-300'
+                          }`}
+                        >
+                          {tag}
+                          {selectedTags.includes(tag) && (
+                            <span className="ml-1.5">✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    {selectedTags.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                          Selected tags ({selectedTags.length}):
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedTags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs font-medium"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Filter Options */}
-            <div className="mb-6">
+            <div className="mb-6 space-y-4">
               {/* Sort Options */}
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="text-sm font-medium text-gray-600">Sort by:</span>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Sort by:</span>
                 <div className="flex flex-wrap gap-2">
                   {filterOptions.map((option) => (
                     <button
@@ -233,7 +352,7 @@ export default function Search() {
                       className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
                         selectedFilter === option
                           ? 'bg-purple-500 text-white shadow-sm'
-                          : 'bg-white/70 text-gray-600 hover:bg-white/90 border border-gray-200'
+                          : 'bg-white/70 dark:bg-gray-700/70 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-700/90 border border-gray-200 dark:border-gray-600'
                       }`}
                     >
                       {option}
@@ -244,7 +363,7 @@ export default function Search() {
               
               {/* Category Filters */}
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-600">Categories:</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Categories:</span>
                 <div className="flex flex-wrap gap-2">
                   {categoryOptions.map((category) => (
                     <button
@@ -253,7 +372,7 @@ export default function Search() {
                       className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
                         selectedCategory === category
                           ? 'bg-purple-500 text-white shadow-sm'
-                          : 'bg-white/70 text-gray-600 hover:bg-white/90 border border-gray-200'
+                          : 'bg-white/70 dark:bg-gray-700/70 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-700/90 border border-gray-200 dark:border-gray-600'
                       }`}
                     >
                       {selectedCategory === category && (
@@ -264,12 +383,39 @@ export default function Search() {
                   ))}
                 </div>
               </div>
+
+              {/* Selected Tags Display */}
+              {selectedTags.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Active filters:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => {
+                          setSelectedTags(prev => prev.filter(t => t !== tag));
+                        }}
+                        className="px-3 py-1.5 rounded-full text-sm font-medium bg-purple-500 text-white shadow-sm hover:bg-purple-600 transition-colors flex items-center space-x-1"
+                      >
+                        <span>{tag}</span>
+                        <span className="text-xs">×</span>
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setSelectedTags([])}
+                      className="px-3 py-1.5 rounded-full text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 border border-purple-200 dark:border-purple-800"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Search Results Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-              {searchResults.map((result) => (
-                <Card key={result.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] rounded-lg border border-gray-100 relative" style={{ backgroundColor: '#FFFCF9' }}>
+              {filteredResults.map((result) => (
+                <Card key={result.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] rounded-lg border border-gray-100 dark:border-gray-700 relative bg-white dark:bg-gray-800" style={{ backgroundColor: '#FFFCF9' }}>
                   {/* Favorite Bookmark */}
                   <button
                     onClick={(e) => {

@@ -5,8 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
 import { ArrowLeft, Bell, Shield, MessageCircle, Globe, Moon, Sun, Palette, Download, Trash2, LogOut } from "lucide-react";
 import Link from 'next/link';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function Settings() {
+  const { theme, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState({
     push: true,
     email: false,
@@ -26,7 +28,6 @@ export default function Settings() {
   });
 
   const [appearance, setAppearance] = useState({
-    theme: 'light',
     compactMode: false,
     showAnimations: true
   });
@@ -53,22 +54,21 @@ export default function Settings() {
   };
 
   const handleExportData = () => {
-    console.log('Exporting data...');
+    // Export user data functionality
     alert('Data export started! You will receive an email when ready.');
   };
 
   const handleDeleteAccount = () => {
     if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      console.log('Deleting account...');
+      // Account deletion functionality
       alert('Account deletion initiated. You will receive a confirmation email.');
     }
   };
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to log out?')) {
-      console.log('Logging out...');
-      // Here you would typically clear auth tokens and redirect
-      alert('Logged out successfully!');
+      // Clear auth tokens and redirect
+      window.location.href = '/';
     }
   };
 
@@ -265,23 +265,31 @@ export default function Settings() {
                 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium text-gray-900">Theme</h3>
-                      <p className="text-sm text-gray-600">Choose your preferred theme</p>
+                    <div className="flex items-center space-x-3">
+                      {theme === 'dark' ? (
+                        <Moon className="w-5 h-5 text-blue-500" />
+                      ) : (
+                        <Sun className="w-5 h-5 text-yellow-500" />
+                      )}
+                      <div>
+                        <h3 className="font-medium text-gray-900">Dark Mode</h3>
+                        <p className="text-sm text-gray-600">Toggle dark theme</p>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                                           <button 
-                       onClick={() => handleAppearanceChange('theme', 'light')}
-                       className={`p-2 rounded-lg border transition-colors ${appearance.theme === 'light' ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:bg-gray-50'}`}
-                     >
-                       <Sun className="w-5 h-5 text-yellow-500" />
-                     </button>
-                     <button 
-                       onClick={() => handleAppearanceChange('theme', 'dark')}
-                       className={`p-2 rounded-lg border transition-colors ${appearance.theme === 'dark' ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:bg-gray-50'}`}
-                     >
-                       <Moon className="w-5 h-5 text-blue-500" />
-                     </button>
+                    <div className="relative">
+                      <input 
+                        type="checkbox" 
+                        id="dark-mode" 
+                        className="sr-only" 
+                        checked={theme === 'dark'}
+                        onChange={toggleTheme}
+                      />
+                      <label htmlFor="dark-mode" className="flex items-center cursor-pointer">
+                        <div className="relative">
+                          <div className={`block w-12 h-6 rounded-full transition-colors ${theme === 'dark' ? 'bg-purple-500' : 'bg-gray-300'}`}></div>
+                          <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${theme === 'dark' ? 'transform translate-x-6' : ''}`}></div>
+                        </div>
+                      </label>
                     </div>
                   </div>
 

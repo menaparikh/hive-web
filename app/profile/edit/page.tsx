@@ -39,7 +39,7 @@ export default function ProfileEditor() {
   };
 
   const handleSave = () => {
-    console.log('Saving profile:', formData);
+    // Save profile functionality
     // Here you would typically save to backend
     alert('Profile saved successfully!');
   };

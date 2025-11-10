@@ -36,6 +36,9 @@ type RelatedList = {
 
 export default function ListDetail({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
+  // Current user - in a real app, this would come from auth context
+  const currentUser = 'Mena Parikh';
+  
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -58,6 +61,10 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [shareMessage, setShareMessage] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [newItemTitle, setNewItemTitle] = useState('');
+  const [newItemDescription, setNewItemDescription] = useState('');
+  const [newItemLink, setNewItemLink] = useState('');
   
   // Navigation state for stories/items
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
@@ -285,6 +292,159 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
         collaboration: 'public',
         contributors: ['Alex Johnson', 'CoraOConell'],
         allowComments: true
+      },
+      'm1': {
+        id: 'm1',
+        title: 'YA Romance Books',
+        description: 'A collection of young adult romance novels that will make your heart flutter. From enemies-to-lovers to friends-to-lovers, these stories are perfect for anyone who loves a good love story.',
+        createdBy: 'Mena Parikh',
+        imageUrl: '/romancebooks.png',
+        lastEdited: '2024-01-20',
+        totalItems: 15,
+        likes: 234,
+        views: 1567,
+        comments: 18,
+        category: 'Books',
+        tags: ['romance', 'young-adult', 'books', 'love'],
+        collaboration: 'public',
+        contributors: ['Mena Parikh'],
+        allowComments: true
+      },
+      'm2': {
+        id: 'm2',
+        title: 'YA TV Shows',
+        description: 'The best young adult TV shows that are perfect for binge-watching. From coming-of-age dramas to supernatural thrillers, these shows will keep you hooked.',
+        createdBy: 'Mena Parikh',
+        imageUrl: '/yashows.png',
+        lastEdited: '2024-01-18',
+        totalItems: 12,
+        likes: 189,
+        views: 1243,
+        comments: 12,
+        category: 'TV Shows',
+        tags: ['tv-shows', 'young-adult', 'entertainment', 'drama'],
+        collaboration: 'public',
+        contributors: ['Mena Parikh'],
+        allowComments: true
+      },
+      'm3': {
+        id: 'm3',
+        title: 'Smoothies to Try',
+        description: 'Delicious and nutritious smoothie recipes that are perfect for breakfast or a healthy snack. Packed with fruits, vegetables, and superfoods.',
+        createdBy: 'Mena Parikh',
+        imageUrl: '/smoothies.png',
+        lastEdited: '2024-01-15',
+        totalItems: 10,
+        likes: 456,
+        views: 2101,
+        comments: 34,
+        category: 'Food',
+        tags: ['smoothies', 'healthy', 'recipes', 'breakfast'],
+        collaboration: 'private',
+        contributors: ['Mena Parikh'],
+        allowComments: true
+      },
+      'm4': {
+        id: 'm4',
+        title: 'Skincare for Dry Skin',
+        description: 'The best skincare products and routines for dry skin. From moisturizers to serums, these products will help keep your skin hydrated and glowing.',
+        createdBy: 'Mena Parikh',
+        imageUrl: '/skincare.png',
+        lastEdited: '2024-01-12',
+        totalItems: 8,
+        likes: 321,
+        views: 1892,
+        comments: 25,
+        category: 'Beauty',
+        tags: ['skincare', 'dry-skin', 'beauty', 'self-care'],
+        collaboration: 'private',
+        contributors: ['Mena Parikh'],
+        allowComments: true
+      },
+      'm5': {
+        id: 'm5',
+        title: 'Dorm Room Essentials',
+        description: 'Everything you need to make your dorm room feel like home. From storage solutions to decor ideas, these essentials will help you create the perfect college living space.',
+        createdBy: 'Mena Parikh',
+        imageUrl: '/dorm.png',
+        lastEdited: '2024-01-10',
+        totalItems: 20,
+        likes: 567,
+        views: 3421,
+        comments: 42,
+        category: 'College',
+        tags: ['dorm', 'college', 'essentials', 'decor'],
+        collaboration: 'public',
+        contributors: ['Mena Parikh'],
+        allowComments: true
+      },
+      'm6': {
+        id: 'm6',
+        title: 'Teen Gifts',
+        description: 'The perfect gift ideas for teenagers. From tech gadgets to trendy accessories, these gifts are sure to impress any teen.',
+        createdBy: 'Mena Parikh',
+        imageUrl: '/teengifts.png',
+        lastEdited: '2024-01-08',
+        totalItems: 14,
+        likes: 198,
+        views: 1654,
+        comments: 15,
+        category: 'Gifts',
+        tags: ['gifts', 'teen', 'ideas', 'shopping'],
+        collaboration: 'public',
+        contributors: ['Mena Parikh'],
+        allowComments: true
+      },
+      'm7': {
+        id: 'm7',
+        title: 'Study Playlist Songs',
+        description: 'The perfect songs to help you focus and study. From lo-fi beats to instrumental music, these tracks will help you stay productive.',
+        createdBy: 'Mena Parikh',
+        imageUrl: '/study.png',
+        lastEdited: '2024-01-05',
+        totalItems: 25,
+        likes: 789,
+        views: 2876,
+        comments: 67,
+        category: 'Music',
+        tags: ['music', 'study', 'playlist', 'focus'],
+        collaboration: 'private',
+        contributors: ['Mena Parikh'],
+        allowComments: true
+      },
+      'm8': {
+        id: 'm8',
+        title: 'College Application Tips',
+        description: 'Helpful tips and advice for navigating the college application process. From essays to interviews, these tips will help you put your best foot forward.',
+        createdBy: 'Mena Parikh',
+        imageUrl: '/collegeapp.png',
+        lastEdited: '2024-01-03',
+        totalItems: 18,
+        likes: 432,
+        views: 2101,
+        comments: 28,
+        category: 'College',
+        tags: ['college', 'applications', 'tips', 'advice'],
+        collaboration: 'public',
+        contributors: ['Mena Parikh'],
+        allowComments: true
+      },
+      'm9': {
+        id: 'm9',
+        title: 'Weekend Activity Ideas',
+        description: 'Fun and exciting activities to make your weekends memorable. From outdoor adventures to cozy indoor activities, there\'s something for everyone.',
+        createdBy: 'Mena Parikh',
+        imageUrl: '/weekend.png',
+        lastEdited: '2024-01-01',
+        totalItems: 16,
+        likes: 345,
+        views: 1892,
+        comments: 22,
+        category: 'Activities',
+        tags: ['weekend', 'activities', 'fun', 'ideas'],
+        collaboration: 'public',
+        contributors: ['Mena Parikh'],
+        allowComments: true
       }
     };
     
@@ -292,6 +452,13 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
   };
 
   const listData = getListData(resolvedParams.id);
+  
+  // Check if current user can edit this list
+  // Private lists: only creator can edit
+  // Public/private-collab lists: anyone can edit (or contributors, depending on requirements)
+  const canEditList = listData.collaboration === 'private' 
+    ? listData.createdBy === currentUser 
+    : true; // For public/private-collab, allow editing (or add contributor check later)
 
   // Get list items based on list type
   const getListItems = (listId: string): ListItem[] => {
@@ -370,6 +537,105 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
         { id: '2', title: 'Macrame Wall Hanging', description: 'Beautiful textile art perfect for home decoration.', rating: 4.6, genre: 'Decor', year: 2023, author: 'Alex Johnson', imageUrl: '/diy.png' },
         { id: '3', title: 'Terrarium Garden', description: 'Miniature garden in a glass container for indoor greenery.', rating: 4.5, genre: 'Garden', year: 2023, author: 'Alex Johnson', imageUrl: '/diy.png' },
         { id: '4', title: 'Candle Making', description: 'Create your own scented candles with natural ingredients.', rating: 4.4, genre: 'Crafts', year: 2023, author: 'Alex Johnson', imageUrl: '/diy.png' }
+      ],
+      'm1': [ // YA Romance Books
+        { id: '1', title: 'The Fault in Our Stars', description: 'A heart-wrenching love story between two teenagers who meet in a cancer support group.', rating: 4.8, genre: 'Romance', year: 2012, author: 'John Green', imageUrl: '/romancebooks.png' },
+        { id: '2', title: 'To All the Boys I\'ve Loved Before', description: 'Lara Jean\'s secret love letters get mailed to all her crushes, causing chaos in her love life.', rating: 4.7, genre: 'Romance', year: 2014, author: 'Jenny Han', imageUrl: '/romancebooks.png' },
+        { id: '3', title: 'Red, White & Royal Blue', description: 'The son of the President of the United States falls in love with the Prince of Wales.', rating: 4.9, genre: 'Romance', year: 2019, author: 'Casey McQuiston', imageUrl: '/romancebooks.png' },
+        { id: '4', title: 'The Hating Game', description: 'Two coworkers who hate each other are forced to work together, but their animosity turns into something else.', rating: 4.6, genre: 'Romance', year: 2016, author: 'Sally Thorne', imageUrl: '/romancebooks.png' },
+        { id: '5', title: 'Eleanor & Park', description: 'Two misfit teenagers find love through music and comics in 1980s Omaha.', rating: 4.5, genre: 'Romance', year: 2013, author: 'Rainbow Rowell', imageUrl: '/romancebooks.png' },
+        { id: '6', title: 'The Seven Husbands of Evelyn Hugo', description: 'A reclusive Hollywood icon finally tells her story to an unknown journalist.', rating: 4.8, genre: 'Romance', year: 2017, author: 'Taylor Jenkins Reid', imageUrl: '/romancebooks.png' },
+        { id: '7', title: 'It Ends with Us', description: 'A powerful story about love, strength, and difficult choices in relationships.', rating: 4.7, genre: 'Romance', year: 2016, author: 'Colleen Hoover', imageUrl: '/romancebooks.png' },
+        { id: '8', title: 'The Selection', description: 'A competition to win the heart of the prince and become the next princess.', rating: 4.5, genre: 'Romance', year: 2012, author: 'Kiera Cass', imageUrl: '/romancebooks.png' },
+        { id: '9', title: 'Simon vs. the Homo Sapiens Agenda', description: 'A funny and heartwarming story about coming out and falling in love.', rating: 4.9, genre: 'Romance', year: 2015, author: 'Becky Albertalli', imageUrl: '/romancebooks.png' }
+      ],
+      'm2': [ // YA TV Shows
+        { id: '1', title: 'The Summer I Turned Pretty', description: 'A coming-of-age story about Belly\'s summers at Cousins Beach with her family friends.', rating: 4.7, genre: 'Drama', year: 2022, director: 'Jenny Han', imageUrl: '/yashows.png' },
+        { id: '2', title: 'Heartstopper', description: 'Two British teenagers navigate friendship and love in this heartwarming LGBTQ+ series.', rating: 4.9, genre: 'Romance', year: 2022, director: 'Alice Oseman', imageUrl: '/yashows.png' },
+        { id: '3', title: 'Never Have I Ever', description: 'An Indian-American teenager navigates high school, grief, and romance in California.', rating: 4.6, genre: 'Comedy', year: 2020, director: 'Mindy Kaling', imageUrl: '/yashows.png' },
+        { id: '4', title: 'Outer Banks', description: 'A group of teenagers search for treasure while dealing with romance and danger.', rating: 4.5, genre: 'Adventure', year: 2020, director: 'Josh Pate', imageUrl: '/yashows.png' },
+        { id: '5', title: 'Euphoria', description: 'A raw and honest look at high school students navigating love, identity, and trauma.', rating: 4.8, genre: 'Drama', year: 2019, director: 'Sam Levinson', imageUrl: '/yashows.png' },
+        { id: '6', title: 'Ginny & Georgia', description: 'A mother and daughter navigate life in a small New England town with secrets and drama.', rating: 4.6, genre: 'Drama', year: 2021, director: 'Sarah Lampert', imageUrl: '/yashows.png' },
+        { id: '7', title: 'The Vampire Diaries', description: 'A teenage girl falls in love with a vampire, but their relationship is complicated by his brother.', rating: 4.7, genre: 'Supernatural', year: 2009, director: 'Kevin Williamson', imageUrl: '/yashows.png' },
+        { id: '8', title: 'Riverdale', description: 'A dark and mysterious take on the classic Archie Comics characters in a small town.', rating: 4.4, genre: 'Mystery', year: 2017, director: 'Roberto Aguirre-Sacasa', imageUrl: '/yashows.png' },
+        { id: '9', title: 'The 100', description: 'A group of juvenile delinquents are sent to Earth to see if it\'s habitable after nuclear apocalypse.', rating: 4.5, genre: 'Sci-Fi', year: 2014, director: 'Jason Rothenberg', imageUrl: '/yashows.png' }
+      ],
+      'm3': [ // Smoothies to Try
+        { id: '1', title: 'Strawberry Banana Smoothie', description: 'Classic blend of fresh strawberries and bananas with a hint of vanilla.', rating: 4.8, genre: 'Fruit', year: 2024, author: 'Mena Parikh', imageUrl: '/smoothies.png' },
+        { id: '2', title: 'Green Power Smoothie', description: 'Spinach, kale, mango, and pineapple for a nutrient-packed breakfast.', rating: 4.7, genre: 'Healthy', year: 2024, author: 'Mena Parikh', imageUrl: '/smoothies.png' },
+        { id: '3', title: 'Chocolate Peanut Butter', description: 'Rich and creamy smoothie with chocolate, peanut butter, and banana.', rating: 4.9, genre: 'Dessert', year: 2024, author: 'Mena Parikh', imageUrl: '/smoothies.png' },
+        { id: '4', title: 'Tropical Paradise', description: 'A blend of mango, pineapple, coconut, and passionfruit for a tropical escape.', rating: 4.6, genre: 'Tropical', year: 2024, author: 'Mena Parikh', imageUrl: '/smoothies.png' },
+        { id: '5', title: 'Blueberry Acai Bowl', description: 'Antioxidant-rich smoothie bowl topped with granola, fresh berries, and coconut flakes.', rating: 4.8, genre: 'Healthy', year: 2024, author: 'Mena Parikh', imageUrl: '/smoothies.png' },
+        { id: '6', title: 'Peach Mango Sunrise', description: 'Sweet and refreshing blend of ripe peaches, mango, and orange juice to start your day.', rating: 4.7, genre: 'Fruit', year: 2024, author: 'Mena Parikh', imageUrl: '/smoothies.png' },
+        { id: '7', title: 'Vanilla Berry Blast', description: 'Mixed berries, vanilla yogurt, and a touch of honey for a creamy, fruity treat.', rating: 4.6, genre: 'Fruit', year: 2024, author: 'Mena Parikh', imageUrl: '/smoothies.png' },
+        { id: '8', title: 'Protein Power Punch', description: 'Banana, Greek yogurt, protein powder, and almond butter for a post-workout boost.', rating: 4.9, genre: 'Protein', year: 2024, author: 'Mena Parikh', imageUrl: '/smoothies.png' },
+        { id: '9', title: 'Pineapple Coconut Dream', description: 'Creamy coconut milk blended with fresh pineapple and a hint of lime for tropical vibes.', rating: 4.7, genre: 'Tropical', year: 2024, author: 'Mena Parikh', imageUrl: '/smoothies.png' }
+      ],
+      'm4': [ // Skincare for Dry Skin
+        { id: '1', title: 'CeraVe Moisturizing Cream', description: 'Rich, non-comedogenic cream that hydrates and restores the skin barrier.', rating: 4.8, genre: 'Moisturizer', year: 2024, author: 'Mena Parikh', imageUrl: '/skincare.png' },
+        { id: '2', title: 'The Ordinary Hyaluronic Acid Serum', description: 'Intensive hydration serum that plumps and smooths the skin.', rating: 4.7, genre: 'Serum', year: 2024, author: 'Mena Parikh', imageUrl: '/skincare.png' },
+        { id: '3', title: 'La Roche-Posay Toleriane Double Repair', description: 'Gentle moisturizer with ceramides and niacinamide for sensitive dry skin.', rating: 4.9, genre: 'Moisturizer', year: 2024, author: 'Mena Parikh', imageUrl: '/skincare.png' },
+        { id: '4', title: 'Drunk Elephant Lala Retro Whipped Cream', description: 'Luxurious whipped cream with ceramides and six African oils.', rating: 4.6, genre: 'Moisturizer', year: 2024, author: 'Mena Parikh', imageUrl: '/skincare.png' },
+        { id: '5', title: 'Kiehl\'s Ultra Facial Cream', description: 'Lightweight yet deeply hydrating cream that provides 24-hour moisture.', rating: 4.7, genre: 'Moisturizer', year: 2024, author: 'Mena Parikh', imageUrl: '/skincare.png' },
+        { id: '6', title: 'The Ordinary Squalane Oil', description: 'Lightweight facial oil that locks in moisture without feeling greasy.', rating: 4.8, genre: 'Oil', year: 2024, author: 'Mena Parikh', imageUrl: '/skincare.png' },
+        { id: '7', title: 'First Aid Beauty Ultra Repair Cream', description: 'Intensive repair cream for dry, distressed skin with colloidal oatmeal.', rating: 4.9, genre: 'Moisturizer', year: 2024, author: 'Mena Parikh', imageUrl: '/skincare.png' },
+        { id: '8', title: 'Paula\'s Choice Omega+ Complex Serum', description: 'Rich serum with omega fatty acids to nourish and restore dry skin.', rating: 4.7, genre: 'Serum', year: 2024, author: 'Mena Parikh', imageUrl: '/skincare.png' },
+        { id: '9', title: 'Glow Recipe Watermelon Glow Sleeping Mask', description: 'Overnight hydrating mask with hyaluronic acid and watermelon extract.', rating: 4.6, genre: 'Mask', year: 2024, author: 'Mena Parikh', imageUrl: '/skincare.png' }
+      ],
+      'm5': [ // Dorm Room Essentials
+        { id: '1', title: 'Bed Risers', description: 'Extra storage space under your bed for bins and suitcases.', rating: 4.7, genre: 'Storage', year: 2024, author: 'Mena Parikh', imageUrl: '/dorm.png' },
+        { id: '2', title: 'Command Hooks', description: 'Damage-free hanging solutions for decorations, towels, and more.', rating: 4.8, genre: 'Organization', year: 2024, author: 'Mena Parikh', imageUrl: '/dorm.png' },
+        { id: '3', title: 'Desk Lamp with USB Ports', description: 'Bright lighting for late-night study sessions with convenient charging.', rating: 4.6, genre: 'Lighting', year: 2024, author: 'Mena Parikh', imageUrl: '/dorm.png' },
+        { id: '4', title: 'Shower Caddy', description: 'Portable organizer for all your shower essentials.', rating: 4.5, genre: 'Organization', year: 2024, author: 'Mena Parikh', imageUrl: '/dorm.png' },
+        { id: '5', title: 'Over-the-Door Mirror', description: 'Full-length mirror that hangs on your door to save space.', rating: 4.7, genre: 'Decor', year: 2024, author: 'Mena Parikh', imageUrl: '/dorm.png' },
+        { id: '6', title: 'Under-Bed Storage Bins', description: 'Clear plastic bins perfect for storing clothes, shoes, and extra items.', rating: 4.8, genre: 'Storage', year: 2024, author: 'Mena Parikh', imageUrl: '/dorm.png' },
+        { id: '7', title: 'Mini Fridge', description: 'Small refrigerator for snacks, drinks, and leftovers right in your room.', rating: 4.9, genre: 'Appliances', year: 2024, author: 'Mena Parikh', imageUrl: '/dorm.png' },
+        { id: '8', title: 'String Lights', description: 'Warm LED lights to create a cozy, personalized atmosphere in your space.', rating: 4.6, genre: 'Decor', year: 2024, author: 'Mena Parikh', imageUrl: '/dorm.png' },
+        { id: '9', title: 'Desk Organizer Set', description: 'Pens, paper clips, and small items stay organized with this desk caddy.', rating: 4.5, genre: 'Organization', year: 2024, author: 'Mena Parikh', imageUrl: '/dorm.png' }
+      ],
+      'm6': [ // Teen Gifts
+        { id: '1', title: 'AirPods Pro', description: 'Premium wireless earbuds with noise cancellation and spatial audio.', rating: 4.9, genre: 'Tech', year: 2024, author: 'Mena Parikh', imageUrl: '/teengifts.png' },
+        { id: '2', title: 'LED Strip Lights', description: 'Colorful RGB lights to personalize any room with app control.', rating: 4.7, genre: 'Decor', year: 2024, author: 'Mena Parikh', imageUrl: '/teengifts.png' },
+        { id: '3', title: 'Stanley Tumbler', description: 'Trendy insulated water bottle that keeps drinks cold for hours.', rating: 4.8, genre: 'Accessories', year: 2024, author: 'Mena Parikh', imageUrl: '/teengifts.png' },
+        { id: '4', title: 'Makeup Mirror with Lights', description: 'Professional-grade mirror with adjustable LED lighting.', rating: 4.6, genre: 'Beauty', year: 2024, author: 'Mena Parikh', imageUrl: '/teengifts.png' },
+        { id: '5', title: 'Instant Camera', description: 'Polaroid-style camera to capture and print memories instantly.', rating: 4.7, genre: 'Tech', year: 2024, author: 'Mena Parikh', imageUrl: '/teengifts.png' },
+        { id: '6', title: 'Gift Card Set', description: 'Curated collection of gift cards for their favorite stores and restaurants.', rating: 4.5, genre: 'Gift Cards', year: 2024, author: 'Mena Parikh', imageUrl: '/teengifts.png' },
+        { id: '7', title: 'Wireless Speaker', description: 'Portable Bluetooth speaker for music and parties with great sound quality.', rating: 4.8, genre: 'Tech', year: 2024, author: 'Mena Parikh', imageUrl: '/teengifts.png' },
+        { id: '8', title: 'Sephora Favorites Set', description: 'Travel-sized beauty products from top brands to try and discover favorites.', rating: 4.6, genre: 'Beauty', year: 2024, author: 'Mena Parikh', imageUrl: '/teengifts.png' },
+        { id: '9', title: 'Phone Case with Card Holder', description: 'Stylish phone case with built-in wallet for ID and credit cards.', rating: 4.7, genre: 'Accessories', year: 2024, author: 'Mena Parikh', imageUrl: '/teengifts.png' }
+      ],
+      'm7': [ // Study Playlist Songs
+        { id: '1', title: 'Anti-Hero - Taylor Swift', description: 'Perfect song for studying with its catchy melody and relatable lyrics.', rating: 4.9, genre: 'Pop', year: 2022, author: 'Mena Parikh', imageUrl: '/study.png' },
+        { id: '2', title: 'Cruel Summer - Taylor Swift', description: 'Upbeat and energetic song that keeps you motivated while studying.', rating: 4.8, genre: 'Pop', year: 2019, author: 'Mena Parikh', imageUrl: '/study.png' },
+        { id: '3', title: 'Good 4 U - Olivia Rodrigo', description: 'High-energy pop rock track perfect for powering through study sessions.', rating: 4.7, genre: 'Pop Rock', year: 2021, author: 'Mena Parikh', imageUrl: '/study.png' },
+        { id: '4', title: 'Vampire - Olivia Rodrigo', description: 'Emotional and powerful song that helps maintain focus during long study hours.', rating: 4.8, genre: 'Pop', year: 2023, author: 'Mena Parikh', imageUrl: '/study.png' },
+        { id: '5', title: 'Greedy - Tate McRae', description: 'Catchy pop song with a great beat for staying energized while studying.', rating: 4.7, genre: 'Pop', year: 2023, author: 'Mena Parikh', imageUrl: '/study.png' },
+        { id: '6', title: 'Exes - Tate McRae', description: 'Relatable lyrics and smooth melody perfect for background study music.', rating: 4.6, genre: 'Pop', year: 2024, author: 'Mena Parikh', imageUrl: '/study.png' },
+        { id: '7', title: 'Tennessee Orange - Megan Moroney', description: 'Country pop song with a sweet melody that\'s easy to listen to while studying.', rating: 4.7, genre: 'Country', year: 2023, author: 'Mena Parikh', imageUrl: '/study.png' },
+        { id: '8', title: 'Ghost - Justin Bieber', description: 'Chill pop song that provides a relaxed vibe perfect for focused studying.', rating: 4.8, genre: 'Pop', year: 2021, author: 'Mena Parikh', imageUrl: '/study.png' },
+        { id: '9', title: 'Beautiful Things - Luke Combs', description: 'Uplifting country song that keeps you positive and motivated during study time.', rating: 4.6, genre: 'Country', year: 2023, author: 'Mena Parikh', imageUrl: '/study.png' }
+      ],
+      'm8': [ // College Application Tips
+        { id: '1', title: 'Start Your Essay Early', description: 'Give yourself plenty of time to write, revise, and perfect your personal statement.', rating: 4.9, genre: 'Essays', year: 2024, author: 'Mena Parikh', imageUrl: '/collegeapp.png' },
+        { id: '2', title: 'Showcase Your Unique Story', description: 'Be authentic and share what makes you different from other applicants.', rating: 4.8, genre: 'Essays', year: 2024, author: 'Mena Parikh', imageUrl: '/collegeapp.png' },
+        { id: '3', title: 'Get Strong Recommendation Letters', description: 'Ask teachers who know you well and can speak to your character and abilities.', rating: 4.7, genre: 'Recommendations', year: 2024, author: 'Mena Parikh', imageUrl: '/collegeapp.png' },
+        { id: '4', title: 'Practice Interview Skills', description: 'Prepare thoughtful questions and practice talking about your experiences confidently.', rating: 4.6, genre: 'Interviews', year: 2024, author: 'Mena Parikh', imageUrl: '/collegeapp.png' },
+        { id: '5', title: 'Research Each School Thoroughly', description: 'Show genuine interest by mentioning specific programs, professors, or opportunities.', rating: 4.8, genre: 'Research', year: 2024, author: 'Mena Parikh', imageUrl: '/collegeapp.png' },
+        { id: '6', title: 'Keep Track of Deadlines', description: 'Create a calendar with all application deadlines, test dates, and required materials.', rating: 4.9, genre: 'Organization', year: 2024, author: 'Mena Parikh', imageUrl: '/collegeapp.png' },
+        { id: '7', title: 'Highlight Your Extracurriculars', description: 'Show depth and leadership in your activities rather than just listing many clubs.', rating: 4.7, genre: 'Activities', year: 2024, author: 'Mena Parikh', imageUrl: '/collegeapp.png' },
+        { id: '8', title: 'Proofread Everything', description: 'Have multiple people review your essays and applications for errors and clarity.', rating: 4.8, genre: 'Essays', year: 2024, author: 'Mena Parikh', imageUrl: '/collegeapp.png' },
+        { id: '9', title: 'Demonstrate Growth and Learning', description: 'Share how you\'ve overcome challenges and what you\'ve learned from experiences.', rating: 4.7, genre: 'Essays', year: 2024, author: 'Mena Parikh', imageUrl: '/collegeapp.png' }
+      ],
+      'm9': [ // Weekend Activity Ideas
+        { id: '1', title: 'Hiking Adventure', description: 'Explore local trails and enjoy nature while getting exercise.', rating: 4.8, genre: 'Outdoor', year: 2024, author: 'Mena Parikh', imageUrl: '/weekend.png' },
+        { id: '2', title: 'Coffee Shop Hopping', description: 'Visit different local cafes and try new drinks while working or reading.', rating: 4.7, genre: 'Food & Drink', year: 2024, author: 'Mena Parikh', imageUrl: '/weekend.png' },
+        { id: '3', title: 'Movie Marathon', description: 'Cozy up with friends for a themed movie night with snacks and blankets.', rating: 4.6, genre: 'Indoor', year: 2024, author: 'Mena Parikh', imageUrl: '/weekend.png' },
+        { id: '4', title: 'Farmer\'s Market Visit', description: 'Shop for fresh produce, try local treats, and support local vendors.', rating: 4.5, genre: 'Shopping', year: 2024, author: 'Mena Parikh', imageUrl: '/weekend.png' },
+        { id: '5', title: 'Art Museum or Gallery', description: 'Explore local art exhibitions and discover new artists and styles.', rating: 4.7, genre: 'Cultural', year: 2024, author: 'Mena Parikh', imageUrl: '/weekend.png' },
+        { id: '6', title: 'Beach Day', description: 'Pack a picnic, bring sunscreen, and spend the day relaxing by the water.', rating: 4.8, genre: 'Outdoor', year: 2024, author: 'Mena Parikh', imageUrl: '/weekend.png' },
+        { id: '7', title: 'Cooking Class', description: 'Learn to make a new cuisine or perfect your favorite dish with friends.', rating: 4.6, genre: 'Food & Drink', year: 2024, author: 'Mena Parikh', imageUrl: '/weekend.png' },
+        { id: '8', title: 'Thrift Shopping', description: 'Hunt for unique vintage finds and build a sustainable wardrobe.', rating: 4.7, genre: 'Shopping', year: 2024, author: 'Mena Parikh', imageUrl: '/weekend.png' },
+        { id: '9', title: 'Game Night', description: 'Invite friends over for board games, card games, or video game tournaments.', rating: 4.8, genre: 'Indoor', year: 2024, author: 'Mena Parikh', imageUrl: '/weekend.png' }
       ]
     };
     
@@ -466,16 +732,44 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
     }
   };
 
-  const handleAddToList = (bookTitle: string) => {
-    if (listData.collaboration === 'public') {
-      alert(`"${bookTitle}" has been added to this collaborative list!`);
-    } else {
-      alert('This list is not publicly collaborative. Only the creator can add items.');
+  const handleAddToList = () => {
+    if (!canEditList) {
+      alert('Only the creator can add items to private lists.');
+      return;
+    }
+    
+    if (!newItemTitle.trim()) {
+      alert('Please enter a title for the item.');
+      return;
+    }
+    
+    // Validate URL if provided
+    if (newItemLink.trim() && !isValidUrl(newItemLink.trim())) {
+      alert('Please enter a valid URL.');
+      return;
+    }
+    
+    // In a real app, this would save to the database
+    alert(`"${newItemTitle}" has been added to this list!`);
+    
+    // Reset form
+    setNewItemTitle('');
+    setNewItemDescription('');
+    setNewItemLink('');
+    setShowAddItemModal(false);
+  };
+  
+  const isValidUrl = (string: string) => {
+    try {
+      const url = new URL(string);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (_) {
+      return false;
     }
   };
 
   const handleToggleReplies = (commentId: string) => {
-    setExpandedReplies(prev => ({
+    setExpandedReplies((prev: { [key: string]: boolean }) => ({
       ...prev,
       [commentId]: !prev[commentId]
     }));
@@ -503,24 +797,143 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
 
   // Enhanced functionality
   const handleItemRating = (itemId: string, rating: number) => {
-    setUserRatings(prev => ({ ...prev, [itemId]: rating }));
+    setUserRatings((prev: { [key: string]: number }) => ({ ...prev, [itemId]: rating }));
     alert(`Rated ${rating} stars! (This would save to your profile)`);
   };
 
   const handleReadingProgress = (itemId: string, status: 'not-started' | 'in-progress' | 'completed') => {
-    setReadingProgress(prev => ({ ...prev, [itemId]: status }));
+    setReadingProgress((prev: { [key: string]: 'not-started' | 'in-progress' | 'completed' }) => ({ ...prev, [itemId]: status }));
     alert(`Marked as ${status.replace('-', ' ')}! (This would save to your profile)`);
   };
 
   const handleAddNote = (itemId: string, note: string) => {
-    setItemNotes(prev => ({ ...prev, [itemId]: note }));
-    setShowNotes(prev => ({ ...prev, [itemId]: false }));
+    setItemNotes((prev: { [key: string]: string }) => ({ ...prev, [itemId]: note }));
+    setShowNotes((prev: { [key: string]: boolean }) => ({ ...prev, [itemId]: false }));
     alert('Note saved! (This would save to your profile)');
   };
 
   const handleExportList = (format: 'csv' | 'json' | 'pdf') => {
-    alert(`Exporting list as ${format.toUpperCase()}... (This would generate and download the file)`);
+    const listData = getListData(resolvedParams.id);
+    const items = getFilteredAndSortedItems();
+    
+    if (format === 'csv') {
+      // Generate CSV
+      const headers = ['Title', 'Description', 'Genre', 'Year', 'Author/Director', 'Rating', 'Status'];
+      const rows = items.map(item => [
+        item.title,
+        item.description,
+        item.genre,
+        item.year.toString(),
+        item.author || item.director || '',
+        item.rating.toString(),
+        item.isCompleted ? 'Completed' : item.isInProgress ? 'In Progress' : 'Not Started'
+      ]);
+      
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${listData.title.replace(/[^a-z0-9]/gi, '_')}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else if (format === 'json') {
+      // Generate JSON
+      const jsonData = {
+        title: listData.title,
+        description: listData.description,
+        createdBy: listData.createdBy,
+        items: items.map(item => ({
+          title: item.title,
+          description: item.description,
+          genre: item.genre,
+          year: item.year,
+          author: item.author,
+          director: item.director,
+          rating: item.rating
+        }))
+      };
+      
+      const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${listData.title.replace(/[^a-z0-9]/gi, '_')}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else if (format === 'pdf') {
+      // For PDF, we'll use window.print with a print-friendly view
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        const printContent = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>${listData.title}</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                h1 { color: #333; }
+                .item { margin: 15px 0; padding: 10px; border-bottom: 1px solid #ddd; }
+              </style>
+            </head>
+            <body>
+              <h1>${listData.title}</h1>
+              <p>${listData.description}</p>
+              <p><strong>Created by:</strong> ${listData.createdBy}</p>
+              <hr>
+              <h2>Items</h2>
+              ${items.map((item, index) => `
+                <div class="item">
+                  <h3>${index + 1}. ${item.title}</h3>
+                  <p>${item.description}</p>
+                  <p><strong>Genre:</strong> ${item.genre} | <strong>Year:</strong> ${item.year} | <strong>Rating:</strong> ${item.rating}/5</p>
+                </div>
+              `).join('')}
+            </body>
+          </html>
+        `;
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
+    
     setShowExportMenu(false);
+  };
+
+  const handleShareList = (platform?: 'twitter' | 'facebook' | 'copy') => {
+    const listData = getListData(resolvedParams.id);
+    const url = window.location.href;
+    const text = `Check out "${listData.title}" on SaveFave!`;
+    
+    if (platform === 'twitter') {
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+    } else if (platform === 'facebook') {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+    } else if (platform === 'copy') {
+      navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    } else {
+      // Use Web Share API if available
+      if (navigator.share) {
+        navigator.share({
+          title: listData.title,
+          text: text,
+          url: url
+        }).catch(() => {
+          navigator.clipboard.writeText(url);
+          alert('Link copied to clipboard!');
+        });
+      } else {
+        navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard!');
+      }
+    }
+    setShowShareModal(false);
   };
 
   const handleShareWithMessage = () => {
@@ -543,27 +956,15 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
   // Navigation functions for stories/items
   const handlePreviousItem = () => {
     const filteredItems = getFilteredAndSortedItems();
-    console.log('Previous clicked - current index:', currentItemIndex, 'total items:', filteredItems.length);
     if (currentItemIndex > 0) {
-      const newIndex = currentItemIndex - 1;
-      console.log('Setting new index to:', newIndex);
-      setCurrentItemIndex(newIndex);
-      console.log('State update triggered');
-    } else {
-      console.log('Cannot go previous - already at first item');
+      setCurrentItemIndex(currentItemIndex - 1);
     }
   };
 
   const handleNextItem = () => {
     const filteredItems = getFilteredAndSortedItems();
-    console.log('Next clicked - current index:', currentItemIndex, 'total items:', filteredItems.length);
     if (currentItemIndex < filteredItems.length - 1) {
-      const newIndex = currentItemIndex + 1;
-      console.log('Setting new index to:', newIndex);
-      setCurrentItemIndex(newIndex);
-      console.log('State update triggered');
-    } else {
-      console.log('Cannot go next - already at last item');
+      setCurrentItemIndex(currentItemIndex + 1);
     }
   };
 
@@ -581,16 +982,9 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, [currentItemIndex]);
 
-  // Monitor currentItemIndex changes
-  React.useEffect(() => {
-    console.log('currentItemIndex changed to:', currentItemIndex);
-  }, [currentItemIndex]);
-
   const openItemViewer = (index: number) => {
-    console.log('Opening item viewer for index:', index);
     setCurrentItemIndex(index);
     setShowItemViewer(true);
-    console.log('Modal should now be visible');
   };
 
   const getFilteredAndSortedItems = () => {
@@ -697,10 +1091,11 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       <Sidebar hasUnreadMessages={true} />
       
-      <main className="ml-20 lg:ml-64 p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
+      <main className="ml-20 lg:ml-64 p-4 sm:p-6 lg:p-8 flex justify-center">
+        <div className="max-w-5xl w-full">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
             <Link href="/" className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </Link>
@@ -746,24 +1141,41 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
               </button>
               
               {showExportMenu && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                  <button 
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                  <button
                     onClick={() => handleExportList('csv')}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
                   >
-                    Export as CSV
+                    <FileText className="w-4 h-4" />
+                    <span>Export as CSV</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleExportList('json')}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
                   >
-                    Export as JSON
+                    <FileText className="w-4 h-4" />
+                    <span>Export as JSON</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleExportList('pdf')}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
                   >
-                    Export as PDF
+                    <FileText className="w-4 h-4" />
+                    <span>Export as PDF</span>
+                  </button>
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                  <button
+                    onClick={() => {
+                      const listData = getListData(resolvedParams.id);
+                      const shareableLink = `${window.location.origin}/messages/lists/${resolvedParams.id}`;
+                      navigator.clipboard.writeText(shareableLink);
+                      alert('Shareable link copied to clipboard!');
+                      setShowExportMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Copy Shareable Link</span>
                   </button>
                 </div>
               )}
@@ -778,26 +1190,26 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
               </button>
               
               {showMenu && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     Report List
                   </button>
-                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     Copy Link
                   </button>
-                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    Edit List
-                  </button>
+                  {canEditList && (
+                    <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                      Edit List
+                    </button>
+                  )}
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        <div className="flex justify-center">
-          <div className="max-w-4xl w-full">
-            {/* List Header Card */}
-            <Card className="mb-6 overflow-hidden rounded-xl border border-gray-100" style={{ backgroundColor: '#FFFCF9' }}>
+          {/* List Header Card */}
+          <Card className="mb-6 overflow-hidden rounded-xl border border-gray-100" style={{ backgroundColor: '#FFFCF9' }}>
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row gap-6">
                   {/* List Image */}
@@ -880,16 +1292,20 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
 
                     
                     {/* Tags */}
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {listData.tags.map((tag: string, index: number) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                    {listData.tags && listData.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400 mr-2">Tags:</span>
+                        {listData.tags.map((tag: string, index: number) => (
+                          <Link
+                            key={index}
+                            href={`/search?tag=${encodeURIComponent(tag)}`}
+                            className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors cursor-pointer"
+                          >
+                            {tag}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -1006,7 +1422,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                             <div className="flex-1">
                               <textarea
                                 value={newReply}
-                                onChange={(e) => setNewReply(e.target.value)}
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewReply(e.target.value)}
                                 placeholder={`Reply to ${comment.username}...`}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors resize-none"
                                 rows={2}
@@ -1086,7 +1502,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                       <div className="flex-1">
                         <textarea
                           value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
                           placeholder="Add a comment..."
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors resize-none"
                           rows={3}
@@ -1135,7 +1551,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                   <div className="relative">
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value)}
                       className="p-2 rounded-lg border border-gray-300 bg-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="title">Sort by Title</option>
@@ -1158,7 +1574,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                         <input
                           type="text"
                           value={filterGenre}
-                          onChange={(e) => setFilterGenre(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilterGenre(e.target.value)}
                           placeholder="e.g., Horror, Comedy..."
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         />
@@ -1168,7 +1584,7 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                         <input
                           type="text"
                           value={filterYear}
-                          onChange={(e) => setFilterYear(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilterYear(e.target.value)}
                           placeholder="e.g., 2020, 2019..."
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         />
@@ -1250,21 +1666,23 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                           </div>
                           
                           <div className="flex items-center space-x-2">
-                            {/* Notes Button */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setShowNotes(prev => ({ ...prev, [item.id]: !prev[item.id] }));
-                              }}
-                              className="p-2 text-gray-500 hover:text-purple-600 transition-colors"
-                              title="Add Notes"
-                            >
-                              <FileText className="w-4 h-4" />
-                            </button>
+                            {/* Notes Button - only show if user can edit */}
+                            {canEditList && (
+                              <button
+                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                  e.stopPropagation();
+                                  setShowNotes((prev: { [key: string]: boolean }) => ({ ...prev, [item.id]: !prev[item.id] }));
+                                }}
+                                className="p-2 text-gray-500 hover:text-purple-600 transition-colors"
+                                title="Add Notes"
+                              >
+                                <FileText className="w-4 h-4" />
+                              </button>
+                            )}
                             
                             {/* External Link */}
                             <button
-                              onClick={(e) => {
+                              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                 e.stopPropagation();
                                 window.open(`https://www.google.com/search?q=${encodeURIComponent(item.title)}`, '_blank');
                               }}
@@ -1278,17 +1696,17 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                         
                         {/* Notes Section */}
                         {showNotes[item.id] && (
-                          <div className="mt-4 p-3 bg-gray-50 rounded-lg" onClick={(e) => e.stopPropagation()}>
+                          <div className="mt-4 p-3 bg-gray-50 rounded-lg" onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
                             <textarea
                               value={itemNotes[item.id] || ''}
-                              onChange={(e) => setItemNotes(prev => ({ ...prev, [item.id]: e.target.value }))}
+                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setItemNotes((prev: { [key: string]: string }) => ({ ...prev, [item.id]: e.target.value }))}
                               placeholder="Add your notes about this item..."
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                               rows={3}
                             />
                             <div className="flex justify-end space-x-2 mt-2">
                               <button
-                                onClick={() => setShowNotes(prev => ({ ...prev, [item.id]: false }))}
+                                onClick={() => setShowNotes((prev: { [key: string]: boolean }) => ({ ...prev, [item.id]: false }))}
                                 className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
                               >
                                 Cancel
@@ -1308,15 +1726,17 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                           <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
                             <div className="flex items-start justify-between">
                               <p className="text-sm text-purple-800 italic">"{itemNotes[item.id]}"</p>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowNotes(prev => ({ ...prev, [item.id]: true }));
-                                }}
-                                className="ml-2 p-1 text-purple-600 hover:text-purple-800 transition-colors"
-                              >
-                                <Edit3 className="w-3 h-3" />
-                              </button>
+                              {canEditList && (
+                                <button
+                                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                    e.stopPropagation();
+                                    setShowNotes((prev: { [key: string]: boolean }) => ({ ...prev, [item.id]: true }));
+                                  }}
+                                  className="ml-2 p-1 text-purple-600 hover:text-purple-800 transition-colors"
+                                >
+                                  <Edit3 className="w-3 h-3" />
+                                </button>
+                              )}
                             </div>
                           </div>
                         )}
@@ -1367,13 +1787,13 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                 </CardContent>
               </Card>
 
-              {/* Add to List Button for Publicly Collaborative Lists */}
-              {listData.collaboration === 'public' && (
+              {/* Add to List Button - only show if user can edit */}
+              {canEditList && (
                 <Card className="overflow-hidden rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300" style={{ backgroundColor: '#FFFCF9' }}>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-center">
                       <button
-                        onClick={() => handleAddToList('new item')}
+                        onClick={() => setShowAddItemModal(true)}
                         className="flex items-center space-x-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                       >
                         <Plus className="w-5 h-5" />
@@ -1384,20 +1804,56 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                 </Card>
               )}
             </div>
-          </div>
         </div>
       </main>
       
       {/* Share Modal */}
       {showShareModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Share This List</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Share This List</h3>
+              <button
+                onClick={() => {
+                  setShowShareModal(false);
+                  setShareMessage('');
+                }}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Social Media Share Buttons */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <button
+                onClick={() => handleShareList('twitter')}
+                className="flex flex-col items-center justify-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+              >
+                <Share2 className="w-6 h-6 text-blue-500 mb-2" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Twitter</span>
+              </button>
+              <button
+                onClick={() => handleShareList('facebook')}
+                className="flex flex-col items-center justify-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+              >
+                <Share2 className="w-6 h-6 text-blue-600 mb-2" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Facebook</span>
+              </button>
+              <button
+                onClick={() => handleShareList('copy')}
+                className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+              >
+                <FileText className="w-6 h-6 text-gray-600 dark:text-gray-300 mb-2" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Copy Link</span>
+              </button>
+            </div>
+            
             <textarea
               value={shareMessage}
-              onChange={(e) => setShareMessage(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setShareMessage(e.target.value)}
               placeholder="Add a personal message (optional)..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none mb-4"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none mb-4"
               rows={3}
             />
             <div className="flex justify-end space-x-2">
@@ -1406,15 +1862,102 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
                   setShowShareModal(false);
                   setShareMessage('');
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={handleShareWithMessage}
+                onClick={() => handleShareList()}
                 className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
               >
                 Share
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Add Item Modal */}
+      {showAddItemModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Item to List</h3>
+              <button
+                onClick={() => {
+                  setShowAddItemModal(false);
+                  setNewItemTitle('');
+                  setNewItemDescription('');
+                  setNewItemLink('');
+                }}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="item-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="item-title"
+                  value={newItemTitle}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewItemTitle(e.target.value)}
+                  placeholder="Enter item title"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="item-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Description (Optional)
+                </label>
+                <textarea
+                  id="item-description"
+                  value={newItemDescription}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewItemDescription(e.target.value)}
+                  placeholder="Enter item description"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="item-link" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Link (Optional)
+                </label>
+                <input
+                  type="url"
+                  id="item-link"
+                  value={newItemLink}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewItemLink(e.target.value)}
+                  placeholder="https://example.com"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Enter a valid URL (e.g., https://example.com)</p>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-2 mt-6">
+              <button
+                onClick={() => {
+                  setShowAddItemModal(false);
+                  setNewItemTitle('');
+                  setNewItemDescription('');
+                  setNewItemLink('');
+                }}
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddToList}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Add Item
               </button>
             </div>
           </div>
@@ -1456,7 +1999,6 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
             {/* Navigation Test Buttons */}
             <button
               onClick={() => {
-                console.log('Test Previous clicked');
                 handlePreviousItem();
               }}
               className="absolute top-16 left-4 z-50 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -1466,7 +2008,6 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
             
             <button
               onClick={() => {
-                console.log('Test Next clicked');
                 handleNextItem();
               }}
               className="absolute top-28 left-4 z-50 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
@@ -1516,8 +2057,6 @@ export default function ListDetail({ params }: { params: Promise<{ id: string }>
               {(() => {
                 const currentItem = getFilteredAndSortedItems()[currentItemIndex];
                 if (!currentItem) return null;
-                
-                console.log('Rendering item:', currentItem.title, 'at index:', currentItemIndex);
                 
                 return (
                   <div className="w-full max-w-2xl">

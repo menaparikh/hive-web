@@ -1,20 +1,113 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sidebar } from "@/components/ui/sidebar";
-import { ArrowLeft, Save, Users, Lock, Globe, MessageCircle, MessageSquare } from "lucide-react";
+import { ArrowLeft, Save, Users, Lock, Globe, MessageCircle, MessageSquare, BookOpen, Film, Utensils, Heart, MapPin, Sparkles, X, CheckCircle, Square } from "lucide-react";
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
+
+type Template = {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+  color: string;
+  bgColor: string;
+  category: string;
+  defaultItems?: string[];
+};
 
 export default function AddList() {
+  const searchParams = useSearchParams();
+  const isTemplateMode = searchParams.get('template') === 'true';
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  
   const [listData, setListData] = useState({
     title: '',
     description: '',
     category: '',
-    tags: '',
+    tags: [] as string[],
     collaboration: 'private' as 'public' | 'private-collab' | 'private',
-    allowComments: true
+    allowComments: true,
+    showCheckboxes: true
   });
+  const [tagInput, setTagInput] = useState('');
+
+  const templates: Template[] = [
+    {
+      id: 'books',
+      name: 'Books to Read',
+      description: 'Track books you want to read',
+      icon: BookOpen,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      category: 'Books',
+      defaultItems: ['Book Title 1', 'Book Title 2']
+    },
+    {
+      id: 'movies',
+      name: 'Movies to Watch',
+      description: 'Keep a list of movies to watch',
+      icon: Film,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      category: 'Movies',
+      defaultItems: ['Movie Title 1', 'Movie Title 2']
+    },
+    {
+      id: 'recipes',
+      name: 'Recipe Collection',
+      description: 'Save your favorite recipes',
+      icon: Utensils,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      category: 'Food',
+      defaultItems: ['Recipe 1', 'Recipe 2']
+    },
+    {
+      id: 'travel',
+      name: 'Travel Destinations',
+      description: 'Plan your next adventures',
+      icon: MapPin,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      category: 'Travel',
+      defaultItems: ['Destination 1', 'Destination 2']
+    },
+    {
+      id: 'wishlist',
+      name: 'Wishlist',
+      description: 'Items you want to get',
+      icon: Heart,
+      color: 'text-red-600',
+      bgColor: 'bg-red-50',
+      category: 'Shopping',
+      defaultItems: ['Item 1', 'Item 2']
+    },
+    {
+      id: 'goals',
+      name: 'Goals & Aspirations',
+      description: 'Track your personal goals',
+      icon: Sparkles,
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50',
+      category: 'Productivity',
+      defaultItems: ['Goal 1', 'Goal 2']
+    }
+  ];
+
+  useEffect(() => {
+    if (selectedTemplate) {
+      setListData(prev => ({
+        ...prev,
+        title: selectedTemplate.name,
+        description: selectedTemplate.description,
+        category: selectedTemplate.category
+      }));
+    }
+  }, [selectedTemplate]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setListData(prev => ({
@@ -25,8 +118,10 @@ export default function AddList() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Creating list:', listData);
+    // Create list functionality
     alert('List created successfully!');
+    // Reset form or redirect
+    window.location.href = '/';
   };
 
   const collaborationOptions = [
@@ -59,6 +154,51 @@ export default function AddList() {
     }
   ];
 
+  // If template mode and no template selected, show template selection
+  if (isTemplateMode && !selectedTemplate) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+        <Sidebar hasUnreadMessages={true} />
+        
+        <main className="ml-20 lg:ml-64 p-4 sm:p-6 lg:p-8">
+          <div className="flex items-center space-x-4 mb-6">
+            <Link href="/" className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+              <ArrowLeft className="w-5 h-5 text-gray-600" />
+            </Link>
+            <h1 className="text-2xl font-bold text-gray-900">Choose a Template</h1>
+          </div>
+
+          <div className="max-w-6xl mx-auto">
+            <p className="text-gray-600 mb-6">Select a template to get started quickly, or <Link href="/add" className="text-purple-600 hover:text-purple-800 font-medium">create from scratch</Link></p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {templates.map((template) => {
+                const Icon = template.icon;
+                return (
+                  <button
+                    key={template.id}
+                    onClick={() => setSelectedTemplate(template)}
+                    className={`p-6 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-lg hover:scale-105 ${
+                      selectedTemplate?.id === template.id
+                        ? 'border-purple-500 bg-purple-50'
+                        : 'border-gray-200 bg-white hover:border-purple-300'
+                    }`}
+                  >
+                    <div className={`w-12 h-12 ${template.bgColor} rounded-lg flex items-center justify-center mb-4`}>
+                      <Icon className={`w-6 h-6 ${template.color}`} />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{template.name}</h3>
+                    <p className="text-sm text-gray-600">{template.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       <Sidebar hasUnreadMessages={true} />
@@ -67,10 +207,20 @@ export default function AddList() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <Link href="/" className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+            <Link href={isTemplateMode ? "/add?template=true" : "/"} className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">Create New List</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {selectedTemplate ? `Create List from ${selectedTemplate.name}` : 'Create New List'}
+            </h1>
+            {selectedTemplate && (
+              <button
+                onClick={() => setSelectedTemplate(null)}
+                className="text-sm text-purple-600 hover:text-purple-800"
+              >
+                Change template
+              </button>
+            )}
                       </div>
 
           <button
@@ -145,15 +295,67 @@ export default function AddList() {
                     <div>
                       <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
                         Tags
-                        </label>
-                      <input
-                        type="text"
-                        id="tags"
-                        value={listData.tags}
-                        onChange={(e) => handleInputChange('tags', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                        placeholder="Enter tags separated by commas (e.g., horror, young adult, thriller)"
-                      />
+                      </label>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {listData.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-700 border border-purple-200"
+                          >
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setListData(prev => ({
+                                  ...prev,
+                                  tags: prev.tags.filter((_, i) => i !== index)
+                                }));
+                              }}
+                              className="ml-2 hover:text-purple-900"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          id="tags"
+                          value={tagInput}
+                          onChange={(e) => setTagInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && tagInput.trim()) {
+                              e.preventDefault();
+                              if (!listData.tags.includes(tagInput.trim())) {
+                                setListData(prev => ({
+                                  ...prev,
+                                  tags: [...prev.tags, tagInput.trim()]
+                                }));
+                              }
+                              setTagInput('');
+                            }
+                          }}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                          placeholder="Type a tag and press Enter"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (tagInput.trim() && !listData.tags.includes(tagInput.trim())) {
+                              setListData(prev => ({
+                                ...prev,
+                                tags: [...prev.tags, tagInput.trim()]
+                              }));
+                              setTagInput('');
+                            }
+                          }}
+                          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Add multiple tags to help others discover your list</p>
                     </div>
                   </div>
                 </CardContent>
@@ -239,6 +441,42 @@ export default function AddList() {
                          className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors"
                        >
                          {listData.allowComments ? 'Enabled' : 'Disabled'}
+                </button>
+              </div>
+              
+              {/* Checkboxes Toggle */}
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-12 h-6 rounded-full transition-colors flex items-center ${
+                    listData.showCheckboxes ? 'bg-purple-500' : 'bg-gray-300'
+                  }`}>
+                    <div className={`w-4 h-4 bg-white rounded-full transition-transform transform ${
+                      listData.showCheckboxes ? 'translate-x-7' : 'translate-x-1'
+                    }`}></div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    {listData.showCheckboxes ? (
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <Square className="w-5 h-5 text-gray-500" />
+                    )}
+                    <div>
+                      <div className="font-medium text-gray-900">Show Checkboxes</div>
+                      <div className="text-sm text-gray-600">
+                        {listData.showCheckboxes 
+                          ? 'Users can check off items as completed' 
+                          : 'Checkboxes are disabled for this list'
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('showCheckboxes', !listData.showCheckboxes)}
+                  className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors"
+                >
+                  {listData.showCheckboxes ? 'Enabled' : 'Disabled'}
                 </button>
               </div>
                    </div>

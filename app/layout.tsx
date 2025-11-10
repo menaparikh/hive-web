@@ -4,6 +4,7 @@ import { Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { FavoritesProvider } from "./contexts/FavoritesContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,11 +37,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${greatVibes.variable} antialiased`}
       >
-        <NotificationProvider>
-          <FavoritesProvider>
-            {children}
-          </FavoritesProvider>
-        </NotificationProvider>
+        <ThemeProvider>
+          <NotificationProvider>
+            <FavoritesProvider>
+              {children}
+            </FavoritesProvider>
+          </NotificationProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
